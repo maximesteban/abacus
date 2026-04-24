@@ -1,0 +1,1958 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Espai Vi Priorat — Demo interactiu</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+  :root {
+    --wine: #6B1E2B;
+    --wine-dark: #3D0F18;
+    --wine-light: #A13044;
+    --cream: #F5EBD8;
+    --cream-dark: #E8D9BC;
+    --gold: #C9A961;
+    --earth: #3D2817;
+    --ink: #1F1410;
+    --green: #4A6B3A;
+    --shadow: 0 20px 60px rgba(61,15,24,.25);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: #2a1a12;
+    color: var(--ink);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding: 20px;
+  }
+
+  .switcher {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(10px);
+    padding: 6px;
+    border-radius: 100px;
+    display: flex;
+    gap: 4px;
+    border: 1px solid rgba(255,255,255,.1);
+  }
+  .switcher button {
+    background: transparent;
+    border: none;
+    color: rgba(255,255,255,.6);
+    padding: 10px 22px;
+    border-radius: 100px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: .02em;
+    transition: all .2s;
+  }
+  .switcher button.active {
+    background: var(--gold);
+    color: var(--earth);
+  }
+
+  .stage {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: calc(100vh - 40px);
+    padding-top: 60px;
+  }
+
+  .totem {
+    width: 540px;
+    height: 960px;
+    max-height: calc(100vh - 120px);
+    background: var(--cream);
+    border-radius: 32px;
+    box-shadow: var(--shadow), inset 0 0 0 10px #111, inset 0 0 0 14px #2a1a12;
+    position: relative;
+    overflow: hidden;
+    display: none;
+  }
+  .totem.active { display: block; }
+  .totem::before {
+    content: '';
+    position: absolute;
+    top: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #444;
+    z-index: 10;
+  }
+  .totem-inner {
+    position: absolute;
+    inset: 14px;
+    border-radius: 22px;
+    overflow: hidden;
+    background: var(--cream);
+  }
+
+  .screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    padding: 40px 32px;
+    animation: fadeIn .4s ease;
+  }
+  .screen.active { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  #screen-welcome {
+    background: linear-gradient(160deg, var(--wine) 0%, var(--wine-dark) 100%);
+    color: var(--cream);
+    justify-content: space-between;
+    text-align: center;
+    padding: 60px 32px;
+    cursor: pointer;
+  }
+  .welcome-logo {
+    font-size: 11px;
+    letter-spacing: .4em;
+    opacity: .7;
+    margin-top: 20px;
+  }
+  .welcome-hero {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 24px;
+  }
+  .welcome-hero h1 {
+    font-size: 64px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+  .welcome-hero h1 em {
+    color: var(--gold);
+    font-style: normal;
+    display: block;
+  }
+  .welcome-sub {
+    font-size: 20px;
+    opacity: .85;
+    max-width: 360px;
+    line-height: 1.4;
+  }
+  .welcome-cta {
+    background: var(--gold);
+    color: var(--earth);
+    padding: 22px 40px;
+    border-radius: 100px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    animation: pulse 2s infinite;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+  .grape-decor {
+    position: absolute;
+    opacity: .08;
+    font-size: 260px;
+    bottom: -40px;
+    right: -40px;
+    transform: rotate(15deg);
+    pointer-events: none;
+  }
+
+  #screen-onboarding {
+    background: linear-gradient(160deg, var(--wine) 0%, var(--wine-dark) 100%);
+    padding: 0;
+  }
+  .onboarding-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(30,10,15,.7);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+  .onboarding-card {
+    background: var(--cream);
+    border-radius: 24px;
+    padding: 36px 32px;
+    width: 100%;
+    max-width: 440px;
+    max-height: 90%;
+    overflow-y: auto;
+    box-shadow: 0 30px 80px rgba(0,0,0,.5);
+  }
+  .onboarding-badge {
+    display: inline-block;
+    background: var(--wine);
+    color: var(--cream);
+    font-size: 11px;
+    letter-spacing: .2em;
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .onboarding-card h2 {
+    font-size: 32px;
+    color: var(--wine-dark);
+    line-height: 1.1;
+    margin-bottom: 16px;
+    letter-spacing: -.02em;
+  }
+  .onboarding-card p {
+    font-size: 16px;
+    color: #5a4438;
+    line-height: 1.5;
+    margin-bottom: 20px;
+  }
+  .onboarding-steps {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .onboarding-steps li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    color: var(--earth);
+  }
+  .step-num {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--wine);
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+
+  #screen-menu {
+    background: var(--cream);
+    padding: 40px 28px;
+    gap: 20px;
+  }
+  .menu-head {
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .menu-head .eyebrow {
+    font-size: 11px;
+    letter-spacing: .3em;
+    color: var(--wine);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .menu-head h2 {
+    font-size: 38px;
+    color: var(--wine-dark);
+    line-height: 1;
+    letter-spacing: -.02em;
+  }
+  .menu-option {
+    flex: 1;
+    border-radius: 20px;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    cursor: pointer;
+    transition: transform .2s;
+    position: relative;
+    overflow: hidden;
+    color: white;
+    min-height: 220px;
+  }
+  .menu-option:hover { transform: translateY(-4px); }
+  .menu-option.a { background: linear-gradient(135deg, #4A6B3A 0%, #2c4222 100%); }
+  .menu-option.b { background: linear-gradient(135deg, var(--wine) 0%, var(--wine-dark) 100%); }
+  .menu-option .icon-big {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 56px;
+    opacity: .3;
+  }
+  .menu-option .tag {
+    font-size: 11px;
+    letter-spacing: .2em;
+    opacity: .7;
+    margin-bottom: 8px;
+  }
+  .menu-option h3 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    letter-spacing: -.01em;
+  }
+  .menu-option p {
+    font-size: 14px;
+    opacity: .9;
+    line-height: 1.4;
+  }
+
+  .question {
+    background: var(--cream);
+    padding: 50px 28px 32px;
+    gap: 16px;
+  }
+  .q-progress {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 20px;
+  }
+  .q-progress span {
+    flex: 1;
+    height: 4px;
+    background: var(--cream-dark);
+    border-radius: 4px;
+  }
+  .q-progress span.done { background: var(--wine); }
+  .q-progress span.current { background: var(--gold); }
+  .q-eyebrow {
+    font-size: 11px;
+    letter-spacing: .3em;
+    color: var(--wine);
+    font-weight: 700;
+  }
+  .q-title {
+    font-size: 36px;
+    color: var(--wine-dark);
+    line-height: 1;
+    margin-bottom: 24px;
+    letter-spacing: -.02em;
+  }
+  .q-options {
+    display: grid;
+    gap: 12px;
+    flex: 1;
+  }
+  .q-options.g4 { grid-template-columns: 1fr 1fr; }
+  .q-options.g3 { grid-template-columns: 1fr; }
+  .q-opt {
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 18px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all .2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+  }
+  .q-options.g3 .q-opt {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding-left: 26px;
+  }
+  .q-opt:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .q-opt.selected {
+    background: var(--wine);
+    color: var(--cream);
+    border-color: var(--wine);
+  }
+  .q-opt .emoji { font-size: 40px; }
+  .q-options.g3 .q-opt .emoji { font-size: 28px; }
+  .q-opt .label {
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .q-opt .sub {
+    font-size: 12px;
+    opacity: .6;
+  }
+  .q-back {
+    background: transparent;
+    border: none;
+    color: var(--wine);
+    font-size: 14px;
+    cursor: pointer;
+    text-align: left;
+    padding: 8px 0;
+    font-weight: 600;
+  }
+
+  #screen-map {
+    padding: 0;
+    background: var(--cream);
+  }
+  .map-header {
+    padding: 20px 24px 14px;
+    background: var(--cream);
+    border-bottom: 1px solid var(--cream-dark);
+    position: relative;
+    z-index: 20;
+  }
+  .map-header .h-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .map-header h3 {
+    font-size: 22px;
+    color: var(--wine-dark);
+    letter-spacing: -.01em;
+  }
+  .map-header .subhead {
+    font-size: 12px;
+    color: #7a6055;
+  }
+  .map-canvas {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background: #d4c39c;
+  }
+  #leaflet-map {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  .leaflet-container {
+    background: #e8dfc9 !important;
+    font-family: inherit !important;
+  }
+  .leaflet-control-attribution {
+    font-size: 8px !important;
+    background: rgba(255,255,255,.7) !important;
+    padding: 2px 5px !important;
+  }
+  .leaflet-control-zoom {
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(0,0,0,.15) !important;
+  }
+  .leaflet-control-zoom a {
+    background: white !important;
+    color: var(--wine) !important;
+    border: none !important;
+    font-weight: 700 !important;
+  }
+  .lmap-pin-wrap {
+    position: relative;
+    width: 40px;
+    height: 48px;
+  }
+  .lmap-pin-body {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    margin-left: -18px;
+    width: 36px;
+    height: 36px;
+    background: var(--wine);
+    border: 3px solid white;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 4px 10px rgba(0,0,0,.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .2s;
+  }
+  .lmap-pin-body > span {
+    transform: rotate(45deg);
+    font-size: 16px;
+    line-height: 1;
+    display: block;
+  }
+  .lmap-pin-body:hover { transform: rotate(-45deg) scale(1.15); }
+  .lmap-pin-wrap.selected .lmap-pin-body {
+    background: var(--gold);
+    box-shadow: 0 0 0 4px rgba(201,169,97,.5), 0 4px 10px rgba(0,0,0,.4);
+  }
+  .lmap-pin-wrap.start .lmap-pin-body {
+    background: var(--green);
+    width: 42px;
+    height: 42px;
+    margin-left: -21px;
+    border-width: 4px;
+  }
+  .lmap-pin-wrap.start .lmap-pin-body > span { font-size: 18px; }
+  .lmap-pin-wrap.start::after {
+    content: 'ESPAI VI';
+    position: absolute;
+    top: 46px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--green);
+    color: white;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(0,0,0,.3);
+  }
+  .map-footer {
+    padding: 14px 20px;
+    background: white;
+    border-top: 1px solid var(--cream-dark);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 20;
+    position: relative;
+  }
+  .map-counter {
+    flex: 1;
+    font-size: 13px;
+    color: var(--earth);
+  }
+  .map-counter strong {
+    color: var(--wine);
+    font-size: 20px;
+    display: block;
+  }
+  .btn-primary {
+    background: var(--wine);
+    color: var(--cream);
+    border: none;
+    padding: 14px 24px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 14px;
+    cursor: pointer;
+    letter-spacing: .03em;
+    transition: all .2s;
+  }
+  .btn-primary:disabled {
+    background: #c4b59e;
+    cursor: not-allowed;
+  }
+  .btn-primary:not(:disabled):hover { background: var(--wine-dark); }
+  .poi-card {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    background: white;
+    border-radius: 20px;
+    padding: 22px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.3);
+    z-index: 900;
+    display: none;
+  }
+  .poi-card.visible { display: block; }
+  .poi-card .close {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--cream);
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: var(--earth);
+  }
+  .poi-tag {
+    display: inline-block;
+    background: var(--cream);
+    color: var(--wine);
+    font-size: 10px;
+    letter-spacing: .2em;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .poi-card h3 {
+    font-size: 22px;
+    color: var(--wine-dark);
+    margin-bottom: 8px;
+    letter-spacing: -.01em;
+  }
+  .poi-card .desc {
+    font-size: 14px;
+    color: #5a4438;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .poi-card .curio {
+    background: var(--cream);
+    border-left: 3px solid var(--gold);
+    padding: 10px 12px;
+    border-radius: 0 8px 8px 0;
+    font-size: 12px;
+    color: var(--earth);
+    line-height: 1.4;
+    margin-bottom: 14px;
+  }
+  .poi-card .curio strong {
+    color: var(--wine);
+    display: block;
+    margin-bottom: 2px;
+    letter-spacing: .08em;
+    font-size: 10px;
+  }
+  .poi-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .btn-secondary {
+    background: var(--cream);
+    color: var(--wine);
+    border: 2px solid var(--cream-dark);
+    padding: 12px 18px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    flex: 1;
+  }
+  .btn-add {
+    background: var(--wine);
+    color: var(--cream);
+    border: none;
+    padding: 12px 18px;
+    border-radius: 100px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    flex: 2;
+  }
+  .btn-add.added { background: var(--green); }
+
+  #screen-route {
+    background: var(--cream);
+    padding: 40px 28px 24px;
+    gap: 16px;
+  }
+  #screen-route h2 {
+    font-size: 34px;
+    color: var(--wine-dark);
+    letter-spacing: -.02em;
+    line-height: 1;
+  }
+  .route-story {
+    background: white;
+    border-radius: 16px;
+    padding: 18px;
+    font-size: 14px;
+    color: var(--earth);
+    line-height: 1.5;
+    border-left: 4px solid var(--gold);
+  }
+  .route-story em { color: var(--wine); }
+  .route-stops {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .route-stop {
+    background: white;
+    border-radius: 12px;
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .stop-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--wine);
+    color: var(--cream);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .stop-name {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--earth);
+  }
+  .stop-icon { font-size: 22px; }
+
+  #screen-qr {
+    background: linear-gradient(160deg, var(--wine) 0%, var(--wine-dark) 100%);
+    color: var(--cream);
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 40px 32px;
+    gap: 20px;
+  }
+  #screen-qr .eyebrow {
+    font-size: 11px;
+    letter-spacing: .3em;
+    opacity: .7;
+  }
+  #screen-qr h2 {
+    font-size: 32px;
+    letter-spacing: -.02em;
+    line-height: 1.1;
+    max-width: 360px;
+  }
+  .qr-wrap {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.4);
+  }
+  .route-id {
+    font-family: "SF Mono", monospace;
+    font-size: 18px;
+    letter-spacing: .15em;
+    background: rgba(0,0,0,.3);
+    padding: 10px 18px;
+    border-radius: 10px;
+    color: var(--gold);
+  }
+  .qr-hint {
+    font-size: 14px;
+    opacity: .8;
+    max-width: 320px;
+    line-height: 1.4;
+  }
+  .qr-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .btn-ghost {
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.2);
+    color: var(--cream);
+    padding: 12px 20px;
+    border-radius: 100px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .mobile {
+    width: 380px;
+    height: 780px;
+    max-height: calc(100vh - 120px);
+    background: #111;
+    border-radius: 48px;
+    padding: 14px;
+    box-shadow: var(--shadow);
+    position: relative;
+    display: none;
+  }
+  .mobile.active { display: block; }
+  .mobile::after {
+    content: '';
+    position: absolute;
+    top: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 28px;
+    background: #000;
+    border-radius: 20px;
+    z-index: 10;
+  }
+  .mobile-inner {
+    background: var(--cream);
+    border-radius: 36px;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    position: relative;
+  }
+  .m-screen {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    animation: fadeIn .4s ease;
+  }
+  .m-screen.active { display: flex; }
+
+  .m-entry {
+    background:
+      radial-gradient(circle at top right, rgba(201,169,97,.28), transparent 34%),
+      linear-gradient(180deg, #f7f0e7 0%, #efe4d6 100%);
+    padding: 70px 22px 22px;
+    color: var(--earth);
+    justify-content: space-between;
+  }
+  .m-entry-top .eyebrow {
+    font-size: 10px;
+    letter-spacing: .3em;
+    color: var(--wine);
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .m-entry-top h2 {
+    font-size: 30px;
+    line-height: 1.05;
+    color: var(--wine-dark);
+    margin-bottom: 12px;
+  }
+  .m-entry-top p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6d5446;
+    max-width: 280px;
+  }
+  .m-entry-card {
+    background: rgba(255,255,255,.82);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(107,30,43,.08);
+    box-shadow: 0 18px 40px rgba(61,40,23,.12);
+    border-radius: 24px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .m-scan-btn {
+    width: 100%;
+    border: none;
+    background: #805036;
+    color: white;
+    border-radius: 18px;
+    padding: 16px 18px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: left;
+  }
+  .m-scan-btn span small {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    opacity: .8;
+    margin-top: 3px;
+  }
+  .m-entry-card label {
+    font-size: 11px;
+    letter-spacing: .2em;
+    color: var(--wine);
+    font-weight: 700;
+  }
+  .m-entry-input {
+    border: 1px solid #dbc8b0;
+    background: white;
+    border-radius: 16px;
+    padding: 14px 16px;
+    font-size: 16px;
+    color: var(--earth);
+    outline: none;
+    width: 100%;
+  }
+  .m-entry-hint {
+    font-size: 12px;
+    color: #8a7568;
+    line-height: 1.4;
+  }
+  .m-entry-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .m-entry-secondary {
+    background: white;
+    color: var(--wine);
+    border: 1px solid #dbc8b0;
+    padding: 13px 18px;
+    border-radius: 100px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+  }
+
+  .m-overview-shell {
+    background: linear-gradient(180deg, #f8f2ea 0%, #efe8dd 100%);
+    padding: 56px 0 18px;
+    overflow-y: auto;
+  }
+  .m-place-card {
+    margin: 0 14px;
+    background: rgba(255,255,255,.88);
+    border-radius: 22px;
+    padding: 14px 16px 18px;
+    box-shadow: 0 14px 28px rgba(61,40,23,.08);
+  }
+  .m-place-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .m-place-id {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+  .m-place-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #d7ba8c, #9f6948);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .m-place-name {
+    font-size: 14px;
+    color: #8a7568;
+    margin-bottom: 2px;
+  }
+  .m-place-title {
+    font-size: 29px;
+    line-height: 1;
+    color: var(--earth);
+    letter-spacing: -.03em;
+    white-space: nowrap;
+  }
+  .m-route-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #f4efe7;
+    border: 1px solid #e2d4c2;
+    border-radius: 100px;
+    padding: 7px 12px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #8a7568;
+    margin-bottom: 12px;
+  }
+  .m-story {
+    background: #fffdfa;
+    border: 1px solid #eadfce;
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--earth);
+    margin-bottom: 14px;
+  }
+  .m-overview-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+  }
+  .m-overview-meta span {
+    background: #f7efe2;
+    border-radius: 100px;
+    padding: 7px 10px;
+    font-size: 11px;
+    color: #7a6055;
+    font-weight: 700;
+  }
+  .m-domain-section {
+    padding: 0 14px 12px;
+  }
+  .m-section-label {
+    font-size: 11px;
+    letter-spacing: .18em;
+    color: var(--wine);
+    font-weight: 700;
+    margin: 18px 0 10px;
+    padding: 0 4px;
+  }
+  .m-stops {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .m-stop {
+    background: rgba(255,255,255,.9);
+    border: 1px solid #eadfce;
+    border-radius: 18px;
+    padding: 14px;
+    cursor: pointer;
+    transition: all .2s;
+    box-shadow: 0 10px 24px rgba(61,40,23,.05);
+  }
+  .m-stop:hover { transform: translateY(-1px); }
+  .m-stop-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .m-stop .ic {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #f5ebdd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .m-stop .info { flex: 1; min-width: 0; }
+  .m-stop .n {
+    font-size: 10px;
+    color: var(--wine);
+    font-weight: 700;
+    letter-spacing: .15em;
+    margin-bottom: 2px;
+  }
+  .m-stop .t {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--earth);
+    margin-bottom: 3px;
+  }
+  .m-stop .s {
+    font-size: 12px;
+    color: #8a7568;
+    line-height: 1.4;
+  }
+  .m-stop .state {
+    font-size: 16px;
+    font-weight: 700;
+    color: #8a7568;
+    white-space: nowrap;
+  }
+  .m-stop-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .m-stop-foot .distance {
+    font-size: 12px;
+    color: #8a7568;
+    font-weight: 700;
+  }
+  .m-stop-foot button {
+    border: none;
+    background: #805036;
+    color: white;
+    padding: 10px 14px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .m-stop.locked .state { color: #9b7c63; }
+  .m-stop.unlocked {
+    background: linear-gradient(135deg, #fffefb, #f5eddc);
+    border-color: #d8bd82;
+  }
+  .m-stop.unlocked .state { color: var(--green); }
+
+  .m-detail-shell {
+    background: linear-gradient(180deg, #f8f2ea 0%, #efe8dd 100%);
+    overflow-y: auto;
+  }
+  .m-detail-head {
+    background: linear-gradient(180deg, #efe3cf 0%, #f7efe6 100%);
+    color: var(--earth);
+    padding: 56px 16px 18px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+  }
+  .m-back {
+    background: rgba(255,255,255,.75);
+    border: none;
+    color: var(--earth);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    margin-bottom: 10px;
+  }
+  .m-detail-head h2 {
+    font-size: 29px;
+    letter-spacing: -.03em;
+    line-height: 1.1;
+  }
+  .m-detail-head .cat {
+    font-size: 10px;
+    letter-spacing: .25em;
+    opacity: .7;
+    margin-bottom: 6px;
+    color: #8a7568;
+  }
+  .m-detail-body {
+    flex: 1;
+    padding: 0 16px 20px;
+  }
+  .m-locked-box {
+    background: rgba(255,255,255,.9);
+    color: var(--earth);
+    text-align: left;
+    padding: 18px;
+    border-radius: 22px;
+    border: 1px solid #eadfce;
+    box-shadow: 0 14px 28px rgba(61,40,23,.07);
+    margin-top: 10px;
+  }
+  .m-locked-box .lock-icon {
+    font-size: 44px;
+    margin-bottom: 14px;
+    opacity: .7;
+  }
+  .m-locked-box h3 {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: var(--earth);
+  }
+  .m-locked-box p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #6d5446;
+    margin-bottom: 16px;
+  }
+  .m-locked-box .distance {
+    background: #f7efe2;
+    padding: 10px 14px;
+    border-radius: 100px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 14px;
+    color: #7a6055;
+    font-weight: 700;
+  }
+  .m-locked-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .m-sim-btn {
+    background: #805036;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 100px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .m-sim-btn small {
+    display: block;
+    font-size: 9px;
+    opacity: .7;
+    margin-top: 2px;
+    letter-spacing: .15em;
+  }
+  .m-outline-btn {
+    background: white;
+    color: #805036;
+    border: 1px solid #d8c2ad;
+    padding: 12px 18px;
+    border-radius: 100px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .m-content h3 {
+    color: var(--wine-dark);
+    font-size: 18px;
+    margin-bottom: 10px;
+    margin-top: 16px;
+  }
+  .m-content p {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--earth);
+    margin-bottom: 12px;
+  }
+  .m-content .bigimg {
+    background: linear-gradient(135deg, var(--wine-light), var(--wine));
+    height: 180px;
+    border-radius: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 70px;
+    color: rgba(255,255,255,.4);
+  }
+  .m-content .curio {
+    background: var(--cream);
+    border-left: 3px solid var(--gold);
+    padding: 12px 14px;
+    border-radius: 0 10px 10px 0;
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--earth);
+    margin: 12px 0;
+  }
+  .m-content .curio strong {
+    display: block;
+    color: var(--wine);
+    font-size: 10px;
+    letter-spacing: .2em;
+    margin-bottom: 4px;
+  }
+  .m-unlocked-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--green);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 100px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    margin-bottom: 6px;
+  }
+  .m-place-context {
+    background: rgba(255,255,255,.82);
+    border: 1px solid #eadfce;
+    border-radius: 20px;
+    padding: 14px 16px;
+    margin-bottom: 12px;
+    box-shadow: 0 10px 24px rgba(61,40,23,.05);
+  }
+  .m-place-context .label {
+    font-size: 10px;
+    letter-spacing: .18em;
+    color: var(--wine);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .m-place-context strong {
+    display: block;
+    font-size: 18px;
+    color: var(--earth);
+    margin-bottom: 4px;
+  }
+  .m-place-context span {
+    font-size: 12px;
+    color: #8a7568;
+  }
+
+  .dev-reset {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: rgba(0,0,0,.5);
+    color: rgba(255,255,255,.7);
+    border: 1px solid rgba(255,255,255,.1);
+    padding: 8px 14px;
+    border-radius: 100px;
+    font-size: 11px;
+    cursor: pointer;
+    z-index: 1000;
+    letter-spacing: .05em;
+  }
+</style>
+</head>
+<body>
+
+<div class="switcher">
+  <button data-view="totem" class="active">🖥️ Tòtem Espai 00</button>
+  <button data-view="mobile">📱 Webapp mòbil</button>
+</div>
+
+<button class="dev-reset" onclick="resetDemo()">↺ Reiniciar demo</button>
+
+<div class="stage">
+  <div class="totem active" id="totem">
+    <div class="totem-inner">
+      <div class="screen active" id="screen-welcome" onclick="goTo('onboarding')">
+        <div class="welcome-logo">✦ ESPAI VI · PRIORAT ✦</div>
+        <div class="welcome-hero">
+          <h1>Benvingut<em>al Priorat</em></h1>
+          <p class="welcome-sub">El punt d'inici del teu viatge pel territori del vi</p>
+        </div>
+        <div class="welcome-cta">👆 Toca per començar</div>
+        <div class="grape-decor">🍇</div>
+      </div>
+
+      <div class="screen" id="screen-onboarding">
+        <div class="onboarding-backdrop">
+          <div class="onboarding-card">
+            <span class="onboarding-badge">ESPAI 00</span>
+            <h2>Ets aquí: Espai Vi</h2>
+            <p>Aquest és el punt d'entrada a l'Espai Vi, a Falset. Des d'aquí descobriràs el Priorat i podràs crear una ruta personalitzada.</p>
+            <ul class="onboarding-steps">
+              <li><span class="step-num">1</span> Tria què t'interessa</li>
+              <li><span class="step-num">2</span> Explora el mapa i selecciona llocs</li>
+              <li><span class="step-num">3</span> Escaneja el QR i t'emportes la ruta</li>
+            </ul>
+            <button class="btn-primary" style="width:100%" onclick="goTo('menu')">Som-hi! →</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-menu">
+        <div class="menu-head">
+          <div class="eyebrow">QUÈ VOLS FER?</div>
+          <h2>Tria el teu camí</h2>
+        </div>
+        <div class="menu-option a" onclick="startRoute('explore')">
+          <div class="icon-big">🗺️</div>
+          <div class="tag">OPCIÓ A</div>
+          <h3>On vols anar?</h3>
+          <p>Explora directament els llocs d'interès del Priorat</p>
+        </div>
+        <div class="menu-option b" onclick="startRoute('build')">
+          <div class="icon-big">🍇</div>
+          <div class="tag">OPCIÓ B</div>
+          <h3>Fes la teva ruta</h3>
+          <p>Personalitza una ruta amb 3 preguntes senzilles</p>
+        </div>
+      </div>
+
+      <div class="screen question" id="screen-q1">
+        <div class="q-progress"><span class="current"></span><span></span><span></span></div>
+        <div class="q-eyebrow">PREGUNTA 1 DE 3</div>
+        <div class="q-title">Què t'interessa?</div>
+        <div class="q-options g4">
+          <div class="q-opt" onclick="answer('interest','gastronomia', this)">
+            <span class="emoji">🍷</span>
+            <span class="label">Gastronomia</span>
+            <span class="sub">Cellers, oli, tast</span>
+          </div>
+          <div class="q-opt" onclick="answer('interest','cultura', this)">
+            <span class="emoji">🏛️</span>
+            <span class="label">Cultura</span>
+            <span class="sub">Patrimoni, història</span>
+          </div>
+          <div class="q-opt" onclick="answer('interest','natura', this)">
+            <span class="emoji">🌿</span>
+            <span class="label">Natura</span>
+            <span class="sub">Paisatge, parcs</span>
+          </div>
+          <div class="q-opt" onclick="answer('interest','aventura', this)">
+            <span class="emoji">🥾</span>
+            <span class="label">Aventura</span>
+            <span class="sub">Rutes, senderisme</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen question" id="screen-q2">
+        <div class="q-progress"><span class="done"></span><span class="current"></span><span></span></div>
+        <button class="q-back" onclick="goTo('q1')">← Enrere</button>
+        <div class="q-eyebrow">PREGUNTA 2 DE 3</div>
+        <div class="q-title">Quin ritme vols?</div>
+        <div class="q-options g3">
+          <div class="q-opt" onclick="answer('pace','tranquil', this)">
+            <span class="emoji">☕</span>
+            <div style="text-align:left;margin-left:10px">
+              <div class="label">Tranquil</div>
+              <div class="sub">Temps per gaudir, sense presses</div>
+            </div>
+          </div>
+          <div class="q-opt" onclick="answer('pace','actiu', this)">
+            <span class="emoji">⚡</span>
+            <div style="text-align:left;margin-left:10px">
+              <div class="label">Actiu</div>
+              <div class="sub">Més llocs, més moviment</div>
+            </div>
+          </div>
+          <div class="q-opt" onclick="answer('pace','familiar', this)">
+            <span class="emoji">👨‍👩‍👧</span>
+            <div style="text-align:left;margin-left:10px">
+              <div class="label">Familiar</div>
+              <div class="sub">Pensat per a totes les edats</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen question" id="screen-q3">
+        <div class="q-progress"><span class="done"></span><span class="done"></span><span class="current"></span></div>
+        <button class="q-back" onclick="goTo('q2')">← Enrere</button>
+        <div class="q-eyebrow">PREGUNTA 3 DE 3</div>
+        <div class="q-title">De quant temps disposes?</div>
+        <div class="q-options g3">
+          <div class="q-opt" onclick="answer('time','1-2', this)">
+            <span class="emoji">⏱️</span>
+            <div style="text-align:left;margin-left:10px">
+              <div class="label">1 – 2 hores</div>
+              <div class="sub">Una parada propera</div>
+            </div>
+          </div>
+          <div class="q-opt" onclick="answer('time','3-4', this)">
+            <span class="emoji">🕒</span>
+            <div style="text-align:left;margin-left:10px">
+              <div class="label">3 – 4 hores</div>
+              <div class="sub">Ruta mitjana amb aturades</div>
+            </div>
+          </div>
+          <div class="q-opt" onclick="answer('time','5', this)">
+            <span class="emoji">🌅</span>
+            <div style="text-align:left;margin-left:10px">
+              <div class="label">5+ hores</div>
+              <div class="sub">Un dia sencer de descoberta</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-map">
+        <div class="map-header">
+          <div class="h-top">
+            <div>
+              <h3>Explora i selecciona</h3>
+              <div class="subhead" id="map-subhead">Toca els llocs per descobrir-los</div>
+            </div>
+            <button class="q-back" onclick="goTo('q3')" style="padding:6px 10px">←</button>
+          </div>
+        </div>
+        <div class="map-canvas" id="map-canvas">
+          <div id="leaflet-map"></div>
+          <div class="poi-card" id="poi-card">
+            <button class="close" onclick="closePoi()">✕</button>
+            <div id="poi-content"></div>
+          </div>
+        </div>
+        <div class="map-footer">
+          <div class="map-counter">
+            <strong id="selected-count">0</strong>
+            llocs seleccionats
+          </div>
+          <button class="btn-primary" id="btn-finish" disabled onclick="goTo('route')">Finalitzar ruta →</button>
+        </div>
+      </div>
+
+      <div class="screen" id="screen-route">
+        <button class="q-back" onclick="goTo('map')">← Tornar al mapa</button>
+        <div class="q-eyebrow">LA TEVA RUTA</div>
+        <h2>Un viatge a mida</h2>
+        <div class="route-story" id="route-story"></div>
+        <div class="route-stops" id="route-stops"></div>
+        <button class="btn-primary" style="width:100%" onclick="generateQR(); goTo('qr');">Generar QR i guardar ruta</button>
+      </div>
+
+      <div class="screen" id="screen-qr">
+        <div class="eyebrow">LA TEVA RUTA ESTÀ LLESTA</div>
+        <h2>Escaneja i emporta-te-la al mòbil</h2>
+        <div class="qr-wrap" id="qr-wrap"></div>
+        <div class="route-id" id="route-id">RUTA · ————</div>
+        <p class="qr-hint">Guarda la ruta al teu mòbil. Els punts es desbloquejaran quan arribis físicament a cada lloc.</p>
+        <div class="qr-actions">
+          <button class="btn-ghost" onclick="resetDemo()">Nova ruta</button>
+          <button class="btn-ghost" onclick="simulateScan()" style="background:var(--gold);color:var(--earth);border:none;font-weight:700">📱 Simular escaneig</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mobile" id="mobile">
+    <div class="mobile-inner">
+      <div class="m-screen active m-entry" id="m-entry">
+        <div class="m-entry-top">
+          <div class="eyebrow">FALSET ESPAI VI · WEB APP</div>
+          <h2>Continúa tu recorrido</h2>
+          <p>Escanea tu QR o introduce tu código para abrir tu ruta y seguir descubriendo el territorio.</p>
+        </div>
+        <div class="m-entry-card">
+          <button class="m-scan-btn" onclick="simulateScan()">
+            <span>Escanear QR<small>Abre tu recorrido al instante</small></span>
+            <strong>⌁</strong>
+          </button>
+          <label for="m-route-input">CÓDIGO DE ACCESO</label>
+          <input id="m-route-input" class="m-entry-input" type="text" placeholder="Ej. FALSET-2384">
+          <div class="m-entry-hint">Tu acceso se guarda con el código de tu ruta para retomar la experiencia cuando quieras.</div>
+          <div class="m-entry-actions">
+            <button class="btn-primary" onclick="openMobileEntry()">Entrar a la ruta</button>
+            <button class="m-entry-secondary" onclick="simulateScan()">Usar acceso de ejemplo</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="m-screen" id="m-overview">
+        <div class="m-overview-shell">
+          <div class="m-place-card">
+            <div class="m-place-head">
+              <div class="m-place-id">
+                <div class="m-place-avatar">🏛️</div>
+                <div>
+                  <div class="m-place-name">Dominio principal</div>
+                  <div class="m-place-title">Falset Espai Vi</div>
+                </div>
+              </div>
+            </div>
+            <div class="m-route-chip" id="m-route-code">RUTA · ————</div>
+            <div class="m-story" id="m-story">
+              Cuando llegues a cada lugar, su dominio se desbloqueará y se abrirá como una pantalla propia dentro de la experiencia.
+            </div>
+            <div class="m-overview-meta">
+              <span>⏱️ <span id="m-time">3-4h</span></span>
+              <span>📍 <span id="m-count">0</span> dominios</span>
+              <span id="m-route-title">Ruta Falset</span>
+            </div>
+          </div>
+          <div class="m-domain-section">
+            <div class="m-section-label">DOMINIOS QUE PUEDES DESBLOQUEAR</div>
+            <div class="m-stops" id="m-stops"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="m-screen" id="m-detail"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const POIS = [
+    { id:'cooperativa', name:'Cooperativa Falset-Marçà', icon:'🍷', cats:['gastronomia','cultura'], lat:41.1113, lng:0.8258, short:'Celler cooperatiu modernista', desc:'Obra de Cèsar Martinell, deixeble de Gaudí. Un veritable "catedral del vi" inaugurada el 1919 que combina funcionalitat i bellesa arquitectònica.', curio:'El seu rebedor, amb volta catalana, és considerat dels més impressionants del modernisme vinícola.' },
+    { id:'cartoixa', name:"Cartoixa d'Escaladei", icon:'⛪', cats:['cultura','natura'], lat:41.2556, lng:0.7889, short:'Bressol del Priorat', desc:"Fundada al segle XII, va ser el primer monestir cartoixà de la península. Al seu voltant va néixer la cultura vinícola que dona nom a la comarca.", curio:"El nom 'Priorat' prové del prior de la cartoixa, que governava les terres i els seus vinyers." },
+    { id:'saltadora', name:'Cellers de la Saltadora', icon:'🍇', cats:['gastronomia','cultura'], lat:41.1750, lng:0.7850, short:'Tradició Kosher al Priorat', desc:"Un dels pocs cellers de Catalunya que elabora vi kosher, seguint els rituals de la tradició jueva sota supervisió rabínica.", curio:"Tot el procés, des de la verema fins a l'embotellat, el realitzen exclusivament persones de fe jueva observant." },
+    { id:'castell', name:'Castell de Falset', icon:'🏰', cats:['cultura'], lat:41.1475, lng:0.8195, short:'Museu comarcal del Priorat', desc:"Castell medieval del segle XII que avui acull el Museu Comarcal. Explica la història del territori, el vi i les seves gents.", curio:"Des de les seves torres es veu tota la vall: era el punt de control estratègic de la comarca." },
+    { id:'sant-gregori', name:'Ermita de Sant Gregori', icon:'⛪', cats:['cultura','natura'], lat:41.1380, lng:0.8050, short:'Ermita amb vistes a Falset', desc:"Petita ermita rural envoltada de vinyes i oliveres. Punt d'aplec tradicional i mirador natural sobre el poble.", curio:"Cada any, per la festa del sant, els veïns pugen en processó amb cistelles de coca i vi novell." },
+    { id:'sant-pau', name:'Ermita de Sant Pau (La Figuera)', icon:'⛪', cats:['cultura','natura'], lat:41.2344, lng:0.7458, short:'Mirador sobre el Montsant', desc:"Ermita aïllada en una carena amb vistes espectaculars al Montsant. Ideal per a caminadors i fotògrafs.", curio:"És un dels punts amb menys contaminació lumínica del Priorat: perfecte per observar estrelles." },
+    { id:'bell-cros', name:'Bell Cros', icon:'🍷', cats:['gastronomia'], lat:41.1650, lng:0.8500, short:'Celler familiar', desc:"Celler petit i artesanal on les famílies elaboren vins de terroir respectant el paisatge i les varietats autòctones.", curio:"Les seves vinyes creixen sobre llicorella pura, la pedra que dona al Priorat el seu caràcter mineral únic." },
+    { id:'estels', name:"Mas dels Estels", icon:'🍷', cats:['gastronomia','natura'], lat:41.1700, lng:0.8800, short:'Vinyes a gran altitud', desc:"Situat a gran altitud amb vinyes velles plantades sobre costers. Un dels cellers amb millors vistes del Priorat.", curio:"El nom ve de què, en les nits clares, sembla que les vinyes toquin les estrelles." },
+    { id:'capafons', name:'Cellers Capafons-Ossó', icon:'🍷', cats:['gastronomia'], lat:41.2150, lng:0.8850, short:'Quatre generacions de vinaters', desc:"Celler històric amb arrels al Priorat i al Montsant. Combina tradició familiar amb elaboracions contemporànies.", curio:"Algunes de les seves vinyes tenen més de 80 anys i encara es veremen totalment a mà." },
+    { id:'montsant', name:'Parc Natural del Montsant', icon:'⛰️', cats:['natura','aventura'], lat:41.2950, lng:0.8100, short:'La serra sagrada del Priorat', desc:"Parc natural que corona la comarca. Penya-segats, congostos i rutes de senderisme entre boscos d'alzines i pi blanc.", curio:"El Montsant ha estat refugi d'eremites des del segle XI. Encara es poden veure coves habitades durant segles." },
+    { id:'porrera', name:'Porrera', icon:'🏘️', cats:['cultura','gastronomia'], lat:41.1775, lng:0.8725, short:'Poble, ermita i mirador', desc:"Un dels pobles més bells del Priorat. Carrers empedrats, arquitectura tradicional i vinyes que l'envolten completament.", curio:"Porrera té un microclima únic: la vall és més fresca, i això dona al seu vi una frescor característica." },
+    { id:'gratallops', name:'Gratallops', icon:'🏘️', cats:['cultura','natura'], lat:41.1878, lng:0.7694, short:'Capital vinícola del Priorat', desc:"Poblet penjat entre vinyes de llicorella amb alguns dels cellers més reconeguts internacionalment del Priorat.", curio:"Diuen que aquí va començar el 'renaixement' del Priorat als anys 80, quan un grup de vinaters va apostar pel terroir." },
+    { id:'siurana', name:'Església romànica de Siurana', icon:'⛪', cats:['cultura','natura'], lat:41.2614, lng:0.9311, short:"L'últim bastió musulmà", desc:"Petita església romànica al cim d'una muntanya espectacular, antiga fortalesa sarraïna conquerida al segle XII.", curio:"Segons la llegenda, la reina mora Abdelazia va saltar al buit a cavall abans que rendir-se. Encara hi ha una ferradura marcada a la roca." },
+    { id:'cabaces', name:'Cabacés', icon:'🫒', cats:['gastronomia','cultura'], lat:41.2328, lng:0.7106, short:'Oleoturisme al Priorat', desc:"Poble conegut pel seu oli d'oliva d'alta qualitat. Punt de referència de l'oleoturisme a la comarca.", curio:"Les oliveres de Cabacés són de la varietat arbequina i algunes tenen més de 300 anys." },
+    { id:'burgos-porta', name:'Burgos Porta-Mas Sinen', icon:'🌱', cats:['gastronomia','natura'], lat:41.2244, lng:0.8411, short:'Vi ecològic a Poboleda', desc:"Celler ecològic i biodinàmic situat a Poboleda. Viticultura respectuosa amb la terra i les varietats autòctones.", curio:"Els cavalls continuen llaurant algunes vinyes en comptes de maquinària, seguint la tradició." }
+  ];
+
+  const START = { id:'espai-vi', name:'Espai Vi (Falset)', icon:'🏛️', lat:41.1453, lng:0.8192, start:true };
+
+  let state = {
+    view: 'totem',
+    interest: null,
+    pace: null,
+    time: null,
+    mode: 'build',
+    selected: new Set(),
+    routeId: null,
+    unlocked: new Set(),
+    currentStop: null,
+    mobileReady: false,
+  };
+
+  let leafletMap, markerLayer;
+
+  function goTo(screenId) {
+    document.querySelectorAll('#totem .screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + screenId).classList.add('active');
+    if (screenId === 'map') renderMap();
+    if (screenId === 'route') renderRoute();
+  }
+
+  function goMobile(screenId) {
+    document.querySelectorAll('#mobile .m-screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('m-' + screenId).classList.add('active');
+  }
+
+  document.querySelectorAll('.switcher button').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.switcher button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      const v = b.dataset.view;
+      state.view = v;
+      document.getElementById('totem').classList.toggle('active', v === 'totem');
+      document.getElementById('mobile').classList.toggle('active', v === 'mobile');
+    });
+  });
+
+  function startRoute(mode) {
+    state.mode = mode;
+    state.selected.clear();
+    if (mode === 'explore') {
+      state.interest = null;
+      state.pace = null;
+      state.time = null;
+      goTo('map');
+    } else {
+      goTo('q1');
+    }
+  }
+
+  function answer(key, value, el) {
+    state[key] = value;
+    el.parentElement.querySelectorAll('.q-opt').forEach(o => o.classList.remove('selected'));
+    el.classList.add('selected');
+    setTimeout(() => {
+      if (key === 'interest') goTo('q2');
+      else if (key === 'pace') goTo('q3');
+      else if (key === 'time') goTo('map');
+    }, 250);
+  }
+
+  function filteredPois() {
+    if (state.mode === 'explore' || !state.interest) return POIS;
+    return POIS.filter(p => p.cats.includes(state.interest));
+  }
+
+  function initLeaflet() {
+    if (leafletMap) return;
+    leafletMap = L.map('leaflet-map', {
+      center: [41.205, 0.82],
+      zoom: 11,
+      minZoom: 10,
+      maxZoom: 15,
+      zoomControl: true,
+      attributionControl: true,
+      scrollWheelZoom: true,
+    });
+    L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenTopoMap · © OpenStreetMap',
+      maxZoom: 17,
+    }).addTo(leafletMap);
+    markerLayer = L.layerGroup().addTo(leafletMap);
+  }
+
+  function renderMap() {
+    initLeaflet();
+    setTimeout(() => leafletMap.invalidateSize(), 50);
+    markerLayer.clearLayers();
+    addMarker(START, true);
+    filteredPois().forEach(p => addMarker(p, false));
+    updateCounter();
+
+    const n = filteredPois().length;
+    const interestTxt = state.interest ? `(${state.interest})` : '';
+    document.getElementById('map-subhead').textContent =
+      state.mode === 'explore'
+        ? `${POIS.length} llocs d'interès. Toca per explorar.`
+        : `${n} llocs seleccionats segons les teves preferències ${interestTxt}`;
+  }
+
+  function addMarker(p, isStart) {
+    const classes = ['lmap-pin-wrap'];
+    if (isStart) classes.push('start');
+    if (!isStart && state.selected.has(p.id)) classes.push('selected');
+
+    const icon = L.divIcon({
+      className: classes.join(' '),
+      html: `<div class="lmap-pin-body"><span>${p.icon}</span></div>`,
+      iconSize: [40, 48],
+      iconAnchor: [20, 40],
+    });
+    const marker = L.marker([p.lat, p.lng], { icon, riseOnHover: true }).addTo(markerLayer);
+    if (!isStart) marker.on('click', () => openPoi(p));
+  }
+
+  function openPoi(p) {
+    const card = document.getElementById('poi-card');
+    const content = document.getElementById('poi-content');
+    const added = state.selected.has(p.id);
+    const catsTxt = p.cats.map(c => c.toUpperCase()).join(' · ');
+    content.innerHTML = `
+      <span class="poi-tag">${catsTxt}</span>
+      <h3>${p.icon} ${p.name}</h3>
+      <p class="desc">${p.desc}</p>
+      <div class="curio"><strong>SABIES QUÈ?</strong>${p.curio}</div>
+      <div class="poi-actions">
+        <button class="btn-secondary" onclick="closePoi()">Tornar</button>
+        <button class="btn-add ${added ? 'added' : ''}" onclick="toggleSelect('${p.id}')">${added ? '✓ A la ruta' : '+ Afegir a la ruta'}</button>
+      </div>
+    `;
+    card.classList.add('visible');
+  }
+
+  function closePoi() {
+    document.getElementById('poi-card').classList.remove('visible');
+  }
+
+  window.toggleSelect = function(id) {
+    if (state.selected.has(id)) state.selected.delete(id);
+    else state.selected.add(id);
+    renderMap();
+    closePoi();
+  };
+
+  function updateCounter() {
+    const n = state.selected.size;
+    document.getElementById('selected-count').textContent = n;
+    document.getElementById('btn-finish').disabled = n === 0;
+  }
+
+  function stopRow(num, p, isStart) {
+    return `
+      <div class="route-stop">
+        <div class="stop-num" ${isStart ? 'style="background:var(--green)"' : ''}>${isStart ? '▸' : num}</div>
+        <div class="stop-name">${p.name}</div>
+        <div class="stop-icon">${p.icon}</div>
+      </div>
+    `;
+  }
+
+  function buildStory(stops) {
+    const interestTxt = {
+      gastronomia:'sabores y experiencias',
+      cultura:'patrimonio e historia',
+      natura:'paisaje y entorno',
+      aventura:'recorrido activo',
+    }[state.interest] || 'lugares conectados';
+    const paceTxt = {
+      tranquil:'con ritmo tranquilo',
+      actiu:'con más movimiento',
+      familiar:'pensado para compartir',
+    }[state.pace] || '';
+    return `Desde <em>Falset Espai Vi</em> puedes abrir una ruta de <em>${stops.length} dominios</em> y desbloquear ${interestTxt} ${paceTxt}. Cada lugar se activa al llegar y pasa de vista bloqueada a experiencia propia.`;
+  }
+
+  function renderRoute() {
+    const stops = Array.from(state.selected).map(id => POIS.find(p => p.id === id));
+    const container = document.getElementById('route-stops');
+    container.innerHTML = stopRow(0, START, true) + stops.map((s, i) => stopRow(i + 1, s, false)).join('');
+    document.getElementById('route-story').innerHTML = buildStory(stops);
+  }
+
+  function generateQR() {
+    state.routeId = 'FALSET-' + Math.floor(1000 + Math.random() * 9000);
+    const url = `https://espaivi.local/r/${state.routeId}`;
+    const wrap = document.getElementById('qr-wrap');
+    wrap.innerHTML = '';
+    new QRCode(wrap, {
+      text: url,
+      width: 200,
+      height: 200,
+      colorDark: '#3D0F18',
+      colorLight: '#ffffff',
+      correctLevel: QRCode.CorrectLevel.M,
+    });
+    document.getElementById('route-id').textContent = 'RUTA · ' + state.routeId;
+  }
+
+  function getDistanceLabel(index) {
+    const distances = ['2,3 km', '4,1 km', '6,8 km', '8,4 km', '11,2 km'];
+    return distances[index] || `${(2.3 + (index * 1.7)).toFixed(1).replace('.', ',')} km`;
+  }
+
+  function routeTitle(stops) {
+    if (stops.length === 0) return 'Ruta Falset';
+    if (state.interest === 'gastronomia') return 'Sabores y lugares';
+    if (state.interest === 'cultura') return 'Patrimonio desbloqueable';
+    if (state.interest === 'natura') return 'Paisaje y entorno';
+    if (state.interest === 'aventura') return 'Ruta en movimiento';
+    return 'Experiencia del lugar';
+  }
+
+  function ensureMobileRoute() {
+    if (state.selected.size === 0) {
+      ['cooperativa', 'cartoixa', 'porrera', 'montsant'].forEach(id => state.selected.add(id));
+      state.interest = 'cultura';
+      state.time = '3-4';
+      state.routeId = 'FALSET-DEMO';
+    }
+  }
+
+  function loadMobileRoute() {
+    state.mobileReady = true;
+    const stops = Array.from(state.selected).map(id => POIS.find(p => p.id === id));
+    if (!state.routeId) state.routeId = 'FALSET-DEMO';
+
+    document.getElementById('m-route-code').textContent = 'RUTA · ' + state.routeId;
+    document.getElementById('m-count').textContent = stops.length;
+    document.getElementById('m-time').textContent = state.time ? state.time + 'h' : '3-4h';
+    document.getElementById('m-route-title').textContent = routeTitle(stops);
+    document.getElementById('m-story').innerHTML = buildStory(stops);
+
+    const list = document.getElementById('m-stops');
+    list.innerHTML = '';
+    stops.forEach((s, i) => {
+      const unlocked = state.unlocked.has(s.id);
+      const distance = getDistanceLabel(i);
+      const el = document.createElement('div');
+      el.className = 'm-stop ' + (unlocked ? 'unlocked' : 'locked');
+      el.innerHTML = `
+        <div class="m-stop-top">
+          <div class="ic">${s.icon}</div>
+          <div class="info">
+            <div class="n">DOMINIO ${i + 1}</div>
+            <div class="t">${s.name}</div>
+            <div class="s">${s.short}</div>
+          </div>
+          <div class="state">${unlocked ? 'Visible' : 'Bloqueado'}</div>
+        </div>
+        <div class="m-stop-foot">
+          <div class="distance">📍 ${distance}</div>
+          <button type="button" onclick="event.stopPropagation(); ${unlocked ? `openMobileStop('${s.id}')` : `openDirections('${s.id}')`}">${unlocked ? 'Abrir lugar' : 'Cómo llegar'}</button>
+        </div>
+      `;
+      el.addEventListener('click', () => openMobileStop(s.id));
+      list.appendChild(el);
+    });
+    goMobile('overview');
+  }
+
+  function openMobileStop(id) {
+    const p = POIS.find(x => x.id === id);
+    const orderedStops = Array.from(state.selected);
+    const stopIndex = orderedStops.indexOf(id);
+    const distance = getDistanceLabel(Math.max(stopIndex, 0));
+    state.currentStop = id;
+    const unlocked = state.unlocked.has(id);
+    const detail = document.getElementById('m-detail');
+
+    if (!unlocked) {
+      detail.innerHTML = `
+        <div class="m-detail-shell">
+          <div class="m-detail-head">
+            <button class="m-back" onclick="goMobile('overview')">←</button>
+            <div class="cat">${p.cats[0].toUpperCase()}</div>
+            <h2>${p.name}</h2>
+          </div>
+          <div class="m-detail-body">
+            <div class="m-place-context">
+              <div class="label">DOMINIO PRINCIPAL SIEMPRE VISIBLE</div>
+              <strong>Falset Espai Vi</strong>
+              <span>El lugar base permanece visible y desde aquí se abren los dominios de cada parada.</span>
+            </div>
+            <div class="m-locked-box">
+              <div class="lock-icon">🔒</div>
+              <h3>Este dominio todavía está bloqueado</h3>
+              <p>Cuando el usuario llega físicamente, esta pantalla cambia y carga la experiencia propia del lugar desbloqueado.</p>
+              <div class="distance">📍 Estás a ${distance}</div>
+              <div class="m-locked-actions">
+                <button class="m-outline-btn" onclick="openDirections('${p.id}')">Cómo llegar</button>
+                <button class="m-sim-btn" onclick="simulateArrival()">
+                  Simular llegada
+                  <small>(DEMO)</small>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    } else {
+      detail.innerHTML = `
+        <div class="m-detail-shell">
+          <div class="m-detail-head">
+            <button class="m-back" onclick="goMobile('overview')">←</button>
+            <div class="cat">DOMINIO DESBLOQUEADO</div>
+            <h2>${p.name}</h2>
+          </div>
+          <div class="m-detail-body m-content">
+            <div class="m-place-context">
+              <div class="label">DOMINIO PRINCIPAL</div>
+              <strong>Falset Espai Vi</strong>
+              <span>Ahora el usuario ya está dentro del dominio del lugar y no solo en la vista general del recorrido.</span>
+            </div>
+            <span class="m-unlocked-badge">📍 DESBLOQUEADO</span>
+            <div class="bigimg">${p.icon}</div>
+            <h3>Qué es</h3>
+            <p>${p.desc}</p>
+            <div class="curio">
+              <strong>SABIES QUÈ?</strong>
+              ${p.curio}
+            </div>
+            <h3>Siguiente paso</h3>
+            <p>Desde aquí puedes volver al dominio principal o seguir desbloqueando el resto del recorrido.</p>
+          </div>
+        </div>
+      `;
+    }
+    goMobile('detail');
+  }
+
+  function openMobileEntry() {
+    const input = document.getElementById('m-route-input');
+    ensureMobileRoute();
+    if (input.value.trim()) state.routeId = input.value.trim().toUpperCase();
+    loadMobileRoute();
+  }
+
+  function openDirections(id) {
+    const p = POIS.find(x => x.id === id);
+    if (!p) return;
+    alert(`Como llegar a ${p.name}\n\nEn la app real aquí abriríamos el navegador o un mapa externo.`);
+  }
+
+  function simulateScan() {
+    ensureMobileRoute();
+    document.querySelector('.switcher button[data-view="mobile"]').click();
+    loadMobileRoute();
+  }
+
+  window.simulateArrival = function() {
+    if (state.currentStop) {
+      state.unlocked.add(state.currentStop);
+      loadMobileRoute();
+      openMobileStop(state.currentStop);
+    }
+  };
+
+  function resetDemo() {
+    state = {
+      view: state.view,
+      interest: null,
+      pace: null,
+      time: null,
+      mode: 'build',
+      selected: new Set(),
+      routeId: null,
+      unlocked: new Set(),
+      currentStop: null,
+      mobileReady: false,
+    };
+    document.querySelectorAll('.q-opt').forEach(o => o.classList.remove('selected'));
+    document.getElementById('m-route-input').value = '';
+    goTo('welcome');
+    if (state.view === 'mobile') goMobile('entry');
+  }
+
+  window.resetDemo = resetDemo;
+  window.goTo = goTo;
+  window.startRoute = startRoute;
+  window.answer = answer;
+  window.generateQR = generateQR;
+  window.simulateScan = simulateScan;
+  window.closePoi = closePoi;
+  window.openMobileEntry = openMobileEntry;
+  window.openDirections = openDirections;
+
+  document.querySelector('.switcher button[data-view="mobile"]').addEventListener('click', () => {
+    if (state.mobileReady || state.selected.size > 0) loadMobileRoute();
+    else goMobile('entry');
+  });
+</script>
+
+</body>
+</html>
