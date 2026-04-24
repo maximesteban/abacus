@@ -1273,6 +1273,28 @@
     color: #8a7568;
   }
 
+  .lang-select {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  .lang-select button {
+    background: var(--cream);
+    color: var(--wine);
+    border: 2px solid var(--cream-dark);
+    padding: 8px 12px;
+    border-radius: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .lang-select button.active {
+    background: var(--wine);
+    color: var(--cream);
+    border-color: var(--wine);
+  }
+
   .dev-reset {
     position: fixed;
     top: 16px;
@@ -1304,101 +1326,106 @@
       <div class="screen active" id="screen-welcome" onclick="goTo('onboarding')">
         <div class="welcome-logo">✦ ESPAI VI · PRIORAT ✦</div>
         <div class="welcome-hero">
-          <h1>Benvingut<em>al Priorat</em></h1>
-          <p class="welcome-sub">El punt d'inici del teu viatge pel territori del vi</p>
+          <h1 id="welcome-title"></h1>
+          <p class="welcome-sub"></p>
         </div>
         <div class="welcome-cta">👆 Toca per començar</div>
+        <div class="lang-select">
+          <button data-lang="ca" class="active">CA</button>
+          <button data-lang="es">ES</button>
+          <button data-lang="en">EN</button>
+        </div>
         <div class="grape-decor">🍇</div>
       </div>
 
       <div class="screen" id="screen-onboarding">
         <div class="onboarding-backdrop">
           <div class="onboarding-card">
-            <span class="onboarding-badge">ESPAI 00</span>
-            <h2>Ets aquí: Espai Vi</h2>
-            <p>Aquest és el punt d'entrada a l'Espai Vi, a Falset. Des d'aquí descobriràs el Priorat i podràs crear una ruta personalitzada.</p>
+            <span class="onboarding-badge"></span>
+            <h2></h2>
+            <p></p>
             <ul class="onboarding-steps">
-              <li><span class="step-num">1</span> Tria què t'interessa</li>
-              <li><span class="step-num">2</span> Explora el mapa i selecciona llocs</li>
-              <li><span class="step-num">3</span> Escaneja el QR i t'emportes la ruta</li>
+              <li><span class="step-num">1</span> </li>
+              <li><span class="step-num">2</span> </li>
+              <li><span class="step-num">3</span> </li>
             </ul>
-            <button class="btn-primary" style="width:100%" onclick="goTo('menu')">Som-hi! →</button>
+            <button class="btn-primary" style="width:100%" onclick="goTo('menu')"></button>
           </div>
         </div>
       </div>
 
       <div class="screen" id="screen-menu">
         <div class="menu-head">
-          <div class="eyebrow">QUÈ VOLS FER?</div>
-          <h2>Tria el teu camí</h2>
+          <div class="eyebrow"></div>
+          <h2></h2>
         </div>
         <div class="menu-option a" onclick="startRoute('explore')">
           <div class="icon-big">🗺️</div>
-          <div class="tag">OPCIÓ A</div>
-          <h3>On vols anar?</h3>
-          <p>Explora directament els llocs d'interès del Priorat</p>
+          <div class="tag"></div>
+          <h3></h3>
+          <p></p>
         </div>
         <div class="menu-option b" onclick="startRoute('build')">
           <div class="icon-big">🍇</div>
-          <div class="tag">OPCIÓ B</div>
-          <h3>Fes la teva ruta</h3>
-          <p>Personalitza una ruta amb 3 preguntes senzilles</p>
+          <div class="tag"></div>
+          <h3></h3>
+          <p></p>
         </div>
       </div>
 
       <div class="screen question" id="screen-q1">
         <div class="q-progress"><span class="current"></span><span></span><span></span></div>
-        <div class="q-eyebrow">PREGUNTA 1 DE 3</div>
-        <div class="q-title">Què t'interessa?</div>
+        <div class="q-eyebrow"></div>
+        <div class="q-title"></div>
         <div class="q-options g4">
           <div class="q-opt" onclick="answer('interest','gastronomia', this)">
             <span class="emoji">🍷</span>
-            <span class="label">Gastronomia</span>
-            <span class="sub">Cellers, oli, tast</span>
+            <span class="label"></span>
+            <span class="sub"></span>
           </div>
           <div class="q-opt" onclick="answer('interest','cultura', this)">
             <span class="emoji">🏛️</span>
-            <span class="label">Cultura</span>
-            <span class="sub">Patrimoni, història</span>
+            <span class="label"></span>
+            <span class="sub"></span>
           </div>
           <div class="q-opt" onclick="answer('interest','natura', this)">
             <span class="emoji">🌿</span>
-            <span class="label">Natura</span>
-            <span class="sub">Paisatge, parcs</span>
+            <span class="label"></span>
+            <span class="sub"></span>
           </div>
           <div class="q-opt" onclick="answer('interest','aventura', this)">
             <span class="emoji">🥾</span>
-            <span class="label">Aventura</span>
-            <span class="sub">Rutes, senderisme</span>
+            <span class="label"></span>
+            <span class="sub"></span>
           </div>
         </div>
       </div>
 
       <div class="screen question" id="screen-q2">
         <div class="q-progress"><span class="done"></span><span class="current"></span><span></span></div>
-        <button class="q-back" onclick="goTo('q1')">← Enrere</button>
-        <div class="q-eyebrow">PREGUNTA 2 DE 3</div>
-        <div class="q-title">Quin ritme vols?</div>
+        <button class="q-back" id="q2-back" onclick="goTo('q1')"></button>
+        <div class="q-eyebrow"></div>
+        <div class="q-title"></div>
         <div class="q-options g3">
           <div class="q-opt" onclick="answer('pace','tranquil', this)">
             <span class="emoji">☕</span>
             <div style="text-align:left;margin-left:10px">
-              <div class="label">Tranquil</div>
-              <div class="sub">Temps per gaudir, sense presses</div>
+              <div class="label"></div>
+              <div class="sub"></div>
             </div>
           </div>
           <div class="q-opt" onclick="answer('pace','actiu', this)">
             <span class="emoji">⚡</span>
             <div style="text-align:left;margin-left:10px">
-              <div class="label">Actiu</div>
-              <div class="sub">Més llocs, més moviment</div>
+              <div class="label"></div>
+              <div class="sub"></div>
             </div>
           </div>
           <div class="q-opt" onclick="answer('pace','familiar', this)">
             <span class="emoji">👨‍👩‍👧</span>
             <div style="text-align:left;margin-left:10px">
-              <div class="label">Familiar</div>
-              <div class="sub">Pensat per a totes les edats</div>
+              <div class="label"></div>
+              <div class="sub"></div>
             </div>
           </div>
         </div>
@@ -1406,29 +1433,29 @@
 
       <div class="screen question" id="screen-q3">
         <div class="q-progress"><span class="done"></span><span class="done"></span><span class="current"></span></div>
-        <button class="q-back" onclick="goTo('q2')">← Enrere</button>
-        <div class="q-eyebrow">PREGUNTA 3 DE 3</div>
-        <div class="q-title">De quant temps disposes?</div>
+        <button class="q-back" id="q3-back" onclick="goTo('q2')"></button>
+        <div class="q-eyebrow"></div>
+        <div class="q-title"></div>
         <div class="q-options g3">
           <div class="q-opt" onclick="answer('time','1-2', this)">
             <span class="emoji">⏱️</span>
             <div style="text-align:left;margin-left:10px">
-              <div class="label">1 – 2 hores</div>
-              <div class="sub">Una parada propera</div>
+              <div class="label"></div>
+              <div class="sub"></div>
             </div>
           </div>
           <div class="q-opt" onclick="answer('time','3-4', this)">
             <span class="emoji">🕒</span>
             <div style="text-align:left;margin-left:10px">
-              <div class="label">3 – 4 hores</div>
-              <div class="sub">Ruta mitjana amb aturades</div>
+              <div class="label"></div>
+              <div class="sub"></div>
             </div>
           </div>
           <div class="q-opt" onclick="answer('time','5', this)">
             <span class="emoji">🌅</span>
             <div style="text-align:left;margin-left:10px">
-              <div class="label">5+ hores</div>
-              <div class="sub">Un dia sencer de descoberta</div>
+              <div class="label"></div>
+              <div class="sub"></div>
             </div>
           </div>
         </div>
@@ -1438,10 +1465,13 @@
         <div class="map-header">
           <div class="h-top">
             <div>
-              <h3>Explora i selecciona</h3>
-              <div class="subhead" id="map-subhead">Toca els llocs per descobrir-los</div>
+              <h3 id="map-title"></h3>
+              <div class="subhead" id="map-subhead"></div>
             </div>
-            <button class="q-back" onclick="goTo('q3')" style="padding:6px 10px">←</button>
+            <div style="display: flex; gap: 8px;">
+              <button class="q-back" id="map-reset" onclick="goTo('menu')" style="padding:6px 10px; font-size: 12px;"></button>
+              <button class="q-back" id="map-back" onclick="goTo('q3')" style="padding:6px 10px"></button>
+            </div>
           </div>
         </div>
         <div class="map-canvas" id="map-canvas">
@@ -1454,30 +1484,33 @@
         <div class="map-footer">
           <div class="map-counter">
             <strong id="selected-count">0</strong>
-            llocs seleccionats
+            <span id="selected-label"></span>
           </div>
-          <button class="btn-primary" id="btn-finish" disabled onclick="goTo('route')">Finalitzar ruta →</button>
+          <button class="btn-primary" id="btn-finish" disabled onclick="goTo('route')"></button>
         </div>
       </div>
 
       <div class="screen" id="screen-route">
-        <button class="q-back" onclick="goTo('map')">← Tornar al mapa</button>
-        <div class="q-eyebrow">LA TEVA RUTA</div>
-        <h2>Un viatge a mida</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <button class="q-back" id="route-reset" onclick="goTo('menu')" style="font-size: 12px;"></button>
+          <button class="q-back" id="route-back-map" onclick="goTo('map')"></button>
+        </div>
+        <div class="q-eyebrow" id="route-eyebrow"></div>
+        <h2 id="route-title"></h2>
         <div class="route-story" id="route-story"></div>
         <div class="route-stops" id="route-stops"></div>
-        <button class="btn-primary" style="width:100%" onclick="generateQR(); goTo('qr');">Generar QR i guardar ruta</button>
+        <button class="btn-primary" id="route-generate" style="width:100%" onclick="generateQR(); goTo('qr');"></button>
       </div>
 
       <div class="screen" id="screen-qr">
-        <div class="eyebrow">LA TEVA RUTA ESTÀ LLESTA</div>
-        <h2>Escaneja i emporta-te-la al mòbil</h2>
+        <div class="eyebrow" id="qr-eyebrow"></div>
+        <h2 id="qr-title"></h2>
         <div class="qr-wrap" id="qr-wrap"></div>
-        <div class="route-id" id="route-id">RUTA · ————</div>
-        <p class="qr-hint">Guarda la ruta al teu mòbil. Els punts es desbloquejaran quan arribis físicament a cada lloc.</p>
+        <div class="route-id" id="route-id"></div>
+        <p class="qr-hint" id="qr-hint"></p>
         <div class="qr-actions">
-          <button class="btn-ghost" onclick="resetDemo()">Nova ruta</button>
-          <button class="btn-ghost" onclick="simulateScan()" style="background:var(--gold);color:var(--earth);border:none;font-weight:700">📱 Simular escaneig</button>
+          <button class="btn-ghost" id="qr-new-route" onclick="resetDemo()"></button>
+          <button class="btn-ghost" id="qr-simulate" onclick="simulateScan()" style="background:var(--gold);color:var(--earth);border:none;font-weight:700"></button>
         </div>
       </div>
     </div>
@@ -1487,21 +1520,26 @@
     <div class="mobile-inner">
       <div class="m-screen active m-entry" id="m-entry">
         <div class="m-entry-top">
-          <div class="eyebrow">FALSET ESPAI VI · WEB APP</div>
-          <h2>Continúa tu recorrido</h2>
-          <p>Escanea tu QR o introduce tu código para abrir tu ruta y seguir descubriendo el territorio.</p>
+          <div class="eyebrow" id="m-eyebrow"></div>
+          <h2 id="m-title"></h2>
+          <p id="m-sub"></p>
         </div>
         <div class="m-entry-card">
           <button class="m-scan-btn" onclick="simulateScan()">
-            <span>Escanear QR<small>Abre tu recorrido al instante</small></span>
+            <span id="m-scan-text"></span>
             <strong>⌁</strong>
           </button>
-          <label for="m-route-input">CÓDIGO DE ACCESO</label>
-          <input id="m-route-input" class="m-entry-input" type="text" placeholder="Ej. FALSET-2384">
-          <div class="m-entry-hint">Tu acceso se guarda con el código de tu ruta para retomar la experiencia cuando quieras.</div>
+          <label for="m-route-input"></label>
+          <input id="m-route-input" class="m-entry-input" type="text" placeholder="">
+          <div class="m-entry-hint" id="m-entry-hint"></div>
+          <div class="lang-select">
+            <button data-lang="ca">CA</button>
+            <button data-lang="es" class="active">ES</button>
+            <button data-lang="en">EN</button>
+          </div>
           <div class="m-entry-actions">
-            <button class="btn-primary" onclick="openMobileEntry()">Entrar a la ruta</button>
-            <button class="m-entry-secondary" onclick="simulateScan()">Usar acceso de ejemplo</button>
+            <button class="btn-primary" id="m-enter" onclick="openMobileEntry()"></button>
+            <button class="m-entry-secondary" id="m-example" onclick="simulateScan()"></button>
           </div>
         </div>
       </div>
@@ -1513,23 +1551,21 @@
               <div class="m-place-id">
                 <div class="m-place-avatar">🏛️</div>
                 <div>
-                  <div class="m-place-name">Dominio principal</div>
-                  <div class="m-place-title">Falset Espai Vi</div>
+                  <div class="m-place-name" id="m-overview-title"></div>
+                  <div class="m-place-title" id="m-overview-name"></div>
                 </div>
               </div>
             </div>
-            <div class="m-route-chip" id="m-route-code">RUTA · ————</div>
-            <div class="m-story" id="m-story">
-              Cuando llegues a cada lugar, su dominio se desbloqueará y se abrirá como una pantalla propia dentro de la experiencia.
-            </div>
+            <div class="m-route-chip" id="m-route-code"></div>
+            <div class="m-story" id="m-story"></div>
             <div class="m-overview-meta">
               <span>⏱️ <span id="m-time">3-4h</span></span>
-              <span>📍 <span id="m-count">0</span> dominios</span>
-              <span id="m-route-title">Ruta Falset</span>
+              <span>📍 <span id="m-count">0</span> <span id="m-count-label"></span></span>
+              <span id="m-route-title"></span>
             </div>
           </div>
           <div class="m-domain-section">
-            <div class="m-section-label">DOMINIOS QUE PUEDES DESBLOQUEAR</div>
+            <div class="m-section-label" id="m-section-label"></div>
             <div class="m-stops" id="m-stops"></div>
           </div>
         </div>
@@ -1574,6 +1610,392 @@
     mobileReady: false,
   };
 
+  let currentLang = 'ca';
+
+  const translations = {
+    ca: {
+      // Totem
+      welcome_title: "Benvingut<em>al Priorat</em>",
+      welcome_sub: "El punt d'inici del teu viatge pel territori del vi",
+      welcome_cta: "👆 Toca per començar",
+      onboarding_badge: "ESPAI 00",
+      onboarding_title: "Ets aquí: Espai Vi",
+      onboarding_desc: "Aquest és el punt d'entrada a l'Espai Vi, a Falset. Des d'aquí descobriràs el Priorat i podràs crear una ruta personalitzada.",
+      onboarding_steps: ["Tria què t'interessa", "Explora el mapa i selecciona llocs", "Escaneja el QR i t'emportes la ruta"],
+      onboarding_button: "Som-hi! →",
+      menu_eyebrow: "QUÈ VOLS FER?",
+      menu_title: "Tria el teu camí",
+      menu_option_a_tag: "OPCIÓ A",
+      menu_option_a_title: "On vols anar?",
+      menu_option_a_desc: "Explora directament els llocs d'interès del Priorat",
+      menu_option_b_tag: "OPCIÓ B",
+      menu_option_b_title: "Fes la teva ruta",
+      menu_option_b_desc: "Personalitza una ruta amb 3 preguntes senzilles",
+      q1_eyebrow: "PREGUNTA 1 DE 3",
+      q1_title: "Què t'interessa?",
+      q1_options: [
+        { emoji: "🍷", label: "Gastronomia", sub: "Cellers, oli, tast" },
+        { emoji: "🏛️", label: "Cultura", sub: "Patrimoni, història" },
+        { emoji: "🌿", label: "Natura", sub: "Paisatge, parcs" },
+        { emoji: "🥾", label: "Aventura", sub: "Rutes, senderisme" }
+      ],
+      q2_eyebrow: "PREGUNTA 2 DE 3",
+      q2_title: "Quin ritme vols?",
+      q2_options: [
+        { emoji: "☕", label: "Tranquil", sub: "Temps per gaudir, sense presses" },
+        { emoji: "⚡", label: "Actiu", sub: "Més llocs, més moviment" },
+        { emoji: "👨‍👩‍👧", label: "Familiar", sub: "Pensat per a totes les edats" }
+      ],
+      q3_eyebrow: "PREGUNTA 3 DE 3",
+      q3_title: "De quant temps disposes?",
+      q3_options: [
+        { emoji: "⏱️", label: "1 – 2 hores", sub: "Una parada propera" },
+        { emoji: "🕒", label: "3 – 4 hores", sub: "Ruta mitjana amb aturades" },
+        { emoji: "🌅", label: "5+ hores", sub: "Un dia sencer de descoberta" }
+      ],
+      back: "← Enrere",
+      map_title: "Explora i selecciona",
+      map_sub_all: "llocs d'interès. Toca per explorar.",
+      map_sub_filtered: "llocs seleccionats segons les teves preferències",
+      selected_count: "llocs seleccionats",
+      finish_button: "Finalitzar ruta →",
+      route_back: "← Tornar al mapa",
+      route_eyebrow: "LA TEVA RUTA",
+      route_title: "Un viatge a mida",
+      qr_button: "Generar QR i guardar ruta",
+      qr_eyebrow: "LA TEVA RUTA ESTÀ LLESTA",
+      qr_title: "Escaneja i emporta-te-la al mòbil",
+      qr_hint: "Guarda la ruta al teu mòbil. Els punts es desbloquejaran quan arribis físicament a cada lloc.",
+      new_route: "Nova ruta",
+      simulate_scan: "📱 Simular escaneig",
+      reset: "↺ Reiniciar demo",
+      totem_label: "🖥️ Tòtem Espai 00",
+      mobile_label: "📱 Webapp mòbil",
+      poi_back: "Tornar",
+      poi_add: "+ Afegir a la ruta",
+      poi_added: "✓ A la ruta",
+      // Mobile
+      mobile_eyebrow: "FALSET ESPAI VI · WEB APP",
+      mobile_title: "Continua el teu recorregut",
+      mobile_sub: "Escaneja el teu QR o introdueix el teu codi per obrir la teva ruta i seguir descobrint el territori.",
+      scan_button: "Escanear QR",
+      scan_sub: "Obre el teu recorregut a l'instant",
+      code_label: "CODI D'ACCÉS",
+      code_placeholder: "Ex. FALSET-2384",
+      hint: "El teu accés es guarda amb el codi de la teva ruta per reprendre l'experiència quan vulguis.",
+      enter_button: "Entrar a la ruta",
+      example_button: "Usar accés d'exemple",
+      overview_title: "Dominio principal",
+      overview_name: "Falset Espai Vi",
+      overview_story: "Quan arribis a cada lloc, el seu domini es desbloquejarà i s'obrirà com una pantalla pròpia dins de l'experiència.",
+      section_label: "DOMINIS QUE POTS DESBLOQUEJAR",
+      stop_prefix: "DOMINI",
+      stop_state_locked: "Bloquejat",
+      stop_state_unlocked: "Visible",
+      button_how: "Com arribar",
+      button_open: "Obrir lloc",
+      detail_locked_title: "Aquest domini encara està bloquejat",
+      detail_locked_desc: "Quan l'usuari arriba físicament, aquesta pantalla canvia i carrega l'experiència pròpia del lloc desbloquejat.",
+      detail_distance: "Estàs a",
+      detail_how_button: "Com arribar",
+      detail_sim_button: "Simular arribada",
+      detail_sim_small: "(DEMO)",
+      detail_unlocked_cat: "DOMINI DESBLOQUEJAT",
+      detail_what: "Què és",
+      detail_next: "Següent pas",
+      detail_next_desc: "Des d'aquí pots tornar al domini principal o seguir desbloquejant la resta del recorregut.",
+      unlocked_badge: "DESBLOQUEJAT",
+      place_context_label: "DOMINI PRINCIPAL SEMPRE VISIBLE",
+      place_context_strong: "Falset Espai Vi",
+      place_context_span: "Ara l'usuari ja està dins del domini del lloc i no només a la vista general del recorregut.",
+      stop_count_label: "dominis",
+      // Additional translations
+      build_story: {
+        prefix: "Des de <em>Falset Espai Vi</em> pots obrir una ruta de <em>",
+        mid: " dominis</em> i desbloquejar ",
+        interests: {
+          gastronomia: 'sabors i experiències',
+          cultura: 'patrimoni e història',
+          natura: 'paisatge i entorn',
+          aventura: 'recorregut actiu'
+        },
+        default_interest: 'llocs connectats',
+        paces: {
+          tranquil: 'amb ritme tranquil',
+          actiu: 'amb més moviment',
+          familiar: 'pensat per compartir'
+        },
+        default_pace: '',
+        suffix: '. Cada lloc es activa al arribar i passa de vista bloquejada a experiència pròpia.'
+      },
+      route_titles: {
+        default: 'Ruta Falset',
+        gastronomia: 'Sabors i llocs',
+        cultura: 'Patrimoni desbloqueable',
+        natura: 'Paisatge i entorn',
+        aventura: 'Ruta en moviment',
+        other: 'Experiència del lloc'
+      },
+      curio_label: 'SABIES QUÈ?',
+      directions_alert: 'Com arribar a {name}\n\nEn la app real aquí obriríem el navegador o un mapa extern.',
+      route_prefix: 'RUTA · '
+    },
+    es: {
+      // Totem
+      welcome_title: "Bienvenido<em>al Priorat</em>",
+      welcome_sub: "El punto de inicio de tu viaje por el territorio del vino",
+      welcome_cta: "👆 Toca para comenzar",
+      onboarding_badge: "ESPAI 00",
+      onboarding_title: "Estás aquí: Espai Vi",
+      onboarding_desc: "Este es el punto de entrada al Espai Vi, en Falset. Desde aquí descubrirás el Priorat y podrás crear una ruta personalizada.",
+      onboarding_steps: ["Elige qué te interesa", "Explora el mapa y selecciona lugares", "Escanea el QR y llévate la ruta"],
+      onboarding_button: "¡Vamos! →",
+      menu_eyebrow: "¿QUÉ QUIERES HACER?",
+      menu_title: "Elige tu camino",
+      menu_option_a_tag: "OPCIÓN A",
+      menu_option_a_title: "¿Dónde quieres ir?",
+      menu_option_a_desc: "Explora directamente los lugares de interés del Priorat",
+      menu_option_b_tag: "OPCIÓN B",
+      menu_option_b_title: "Haz tu ruta",
+      menu_option_b_desc: "Personaliza una ruta con 3 preguntas sencillas",
+      q1_eyebrow: "PREGUNTA 1 DE 3",
+      q1_title: "¿Qué te interesa?",
+      q1_options: [
+        { emoji: "🍷", label: "Gastronomía", sub: "Bodegas, aceite, degustación" },
+        { emoji: "🏛️", label: "Cultura", sub: "Patrimonio, historia" },
+        { emoji: "🌿", label: "Naturaleza", sub: "Paisaje, parques" },
+        { emoji: "🥾", label: "Aventura", sub: "Rutas, senderismo" }
+      ],
+      q2_eyebrow: "PREGUNTA 2 DE 3",
+      q2_title: "¿Qué ritmo quieres?",
+      q2_options: [
+        { emoji: "☕", label: "Tranquilo", sub: "Tiempo para disfrutar, sin prisas" },
+        { emoji: "⚡", label: "Activo", sub: "Más lugares, más movimiento" },
+        { emoji: "👨‍👩‍👧", label: "Familiar", sub: "Pensado para todas las edades" }
+      ],
+      q3_eyebrow: "PREGUNTA 3 DE 3",
+      q3_title: "¿De cuánto tiempo dispones?",
+      q3_options: [
+        { emoji: "⏱️", label: "1 – 2 horas", sub: "Una parada cercana" },
+        { emoji: "🕒", label: "3 – 4 horas", sub: "Ruta media con paradas" },
+        { emoji: "🌅", label: "5+ horas", sub: "Un día entero de descubrimiento" }
+      ],
+      back: "← Atrás",
+      map_title: "Explora y selecciona",
+      map_sub_all: "lugares de interés. Toca para explorar.",
+      map_sub_filtered: "lugares seleccionados según tus preferencias",
+      selected_count: "lugares seleccionados",
+      finish_button: "Finalizar ruta →",
+      route_back: "← Volver al mapa",
+      route_eyebrow: "TU RUTA",
+      route_title: "Un viaje a medida",
+      qr_button: "Generar QR y guardar ruta",
+      qr_eyebrow: "TU RUTA ESTÁ LISTA",
+      qr_title: "Escanea y llévatela al móvil",
+      qr_hint: "Guarda la ruta en tu móvil. Los puntos se desbloquearán cuando llegues físicamente a cada lugar.",
+      new_route: "Nueva ruta",
+      simulate_scan: "📱 Simular escaneo",
+      reset: "↺ Reiniciar demo",
+      totem_label: "🖥️ Tótem Espai 00",
+      mobile_label: "📱 Webapp móvil",
+      poi_back: "Volver",
+      poi_add: "+ Añadir a la ruta",
+      poi_added: "✓ En la ruta",
+      // Mobile (same as HTML)
+      mobile_eyebrow: "FALSET ESPAI VI · WEB APP",
+      mobile_title: "Continúa tu recorrido",
+      mobile_sub: "Escanea tu QR o introduce tu código para abrir tu ruta y seguir descubriendo el territorio.",
+      scan_button: "Escanear QR",
+      scan_sub: "Abre tu recorrido al instante",
+      code_label: "CÓDIGO DE ACCESO",
+      code_placeholder: "Ej. FALSET-2384",
+      hint: "Tu acceso se guarda con el código de tu ruta para retomar la experiencia cuando quieras.",
+      enter_button: "Entrar a la ruta",
+      example_button: "Usar acceso de ejemplo",
+      overview_title: "Dominio principal",
+      overview_name: "Falset Espai Vi",
+      overview_story: "Cuando llegues a cada lugar, su dominio se desbloqueará y se abrirá como una pantalla propia dentro de la experiencia.",
+      section_label: "DOMINIOS QUE PUEDES DESBLOQUEAR",
+      stop_prefix: "DOMINIO",
+      stop_state_locked: "Bloqueado",
+      stop_state_unlocked: "Visible",
+      button_how: "Cómo llegar",
+      button_open: "Abrir lugar",
+      detail_locked_title: "Este dominio todavía está bloqueado",
+      detail_locked_desc: "Cuando el usuario llega físicamente, esta pantalla cambia y carga la experiencia propia del lugar desbloqueado.",
+      detail_distance: "Estás a",
+      detail_how_button: "Cómo llegar",
+      detail_sim_button: "Simular llegada",
+      detail_sim_small: "(DEMO)",
+      detail_unlocked_cat: "DOMINIO DESBLOQUEADO",
+      detail_what: "¿Qué es?",
+      detail_next: "Siguiente paso",
+      detail_next_desc: "Desde aquí puedes volver al dominio principal o seguir desbloqueando el resto del recorrido.",
+      unlocked_badge: "DESBLOQUEADO",
+      place_context_label: "DOMINIO PRINCIPAL SIEMPRE VISIBLE",
+      place_context_strong: "Falset Espai Vi",
+      place_context_span: "Ahora el usuario ya está dentro del dominio del lugar y no solo en la vista general del recorrido.",
+      stop_count_label: "dominios",
+      // Additional translations
+      build_story: {
+        prefix: "Desde <em>Falset Espai Vi</em> puedes abrir una ruta de <em>",
+        mid: " dominios</em> y desbloquear ",
+        interests: {
+          gastronomia: 'sabores y experiencias',
+          cultura: 'patrimonio e historia',
+          natura: 'paisaje y entorno',
+          aventura: 'recorrido activo'
+        },
+        default_interest: 'lugares conectados',
+        paces: {
+          tranquil: 'con ritmo tranquilo',
+          actiu: 'con más movimiento',
+          familiar: 'pensado para compartir'
+        },
+        default_pace: '',
+        suffix: '. Cada lugar se activa al llegar y pasa de vista bloqueada a experiencia propia.'
+      },
+      route_titles: {
+        default: 'Ruta Falset',
+        gastronomia: 'Sabores y lugares',
+        cultura: 'Patrimonio desbloqueable',
+        natura: 'Paisaje y entorno',
+        aventura: 'Ruta en movimiento',
+        other: 'Experiencia del lugar'
+      },
+      curio_label: '¿SABÍAS QUÉ?',
+      directions_alert: 'Cómo llegar a {name}\n\nEn la app real aquí abriríamos el navegador o un mapa externo.',
+      route_prefix: 'RUTA · '
+    },
+    en: {
+      // Totem
+      welcome_title: "Welcome<em>to Priorat</em>",
+      welcome_sub: "The starting point of your journey through the wine territory",
+      welcome_cta: "👆 Tap to start",
+      onboarding_badge: "ESPAI 00",
+      onboarding_title: "You are here: Espai Vi",
+      onboarding_desc: "This is the entry point to Espai Vi, in Falset. From here you will discover Priorat and can create a personalized route.",
+      onboarding_steps: ["Choose what interests you", "Explore the map and select places", "Scan the QR and take the route"],
+      onboarding_button: "Let's go! →",
+      menu_eyebrow: "WHAT DO YOU WANT TO DO?",
+      menu_title: "Choose your path",
+      menu_option_a_tag: "OPTION A",
+      menu_option_a_title: "Where do you want to go?",
+      menu_option_a_desc: "Explore the places of interest in Priorat directly",
+      menu_option_b_tag: "OPTION B",
+      menu_option_b_title: "Make your route",
+      menu_option_b_desc: "Customize a route with 3 simple questions",
+      q1_eyebrow: "QUESTION 1 OF 3",
+      q1_title: "What interests you?",
+      q1_options: [
+        { emoji: "🍷", label: "Gastronomy", sub: "Wineries, oil, tasting" },
+        { emoji: "🏛️", label: "Culture", sub: "Heritage, history" },
+        { emoji: "🌿", label: "Nature", sub: "Landscape, parks" },
+        { emoji: "🥾", label: "Adventure", sub: "Routes, hiking" }
+      ],
+      q2_eyebrow: "QUESTION 2 OF 3",
+      q2_title: "What pace do you want?",
+      q2_options: [
+        { emoji: "☕", label: "Tranquil", sub: "Time to enjoy, no rush" },
+        { emoji: "⚡", label: "Active", sub: "More places, more movement" },
+        { emoji: "👨‍👩‍👧", label: "Family", sub: "Designed for all ages" }
+      ],
+      q3_eyebrow: "QUESTION 3 OF 3",
+      q3_title: "How much time do you have?",
+      q3_options: [
+        { emoji: "⏱️", label: "1 – 2 hours", sub: "A nearby stop" },
+        { emoji: "🕒", label: "3 – 4 hours", sub: "Medium route with stops" },
+        { emoji: "🌅", label: "5+ hours", sub: "A full day of discovery" }
+      ],
+      back: "← Back",
+      map_title: "Explore and select",
+      map_sub_all: "places of interest. Tap to explore.",
+      map_sub_filtered: "places selected according to your preferences",
+      selected_count: "places selected",
+      finish_button: "Finish route →",
+      route_back: "← Back to map",
+      route_eyebrow: "YOUR ROUTE",
+      route_title: "A journey to measure",
+      qr_button: "Generate QR and save route",
+      qr_eyebrow: "YOUR ROUTE IS READY",
+      qr_title: "Scan and take it to your mobile",
+      qr_hint: "Save the route on your mobile. The points will unlock when you arrive physically at each place.",
+      new_route: "New route",
+      simulate_scan: "📱 Simulate scan",
+      reset: "↺ Reset demo",
+      totem_label: "🖥️ Totem Espai 00",
+      mobile_label: "📱 Mobile webapp",
+      poi_back: "Back",
+      poi_add: "+ Add to route",
+      poi_added: "✓ In route",
+      // Mobile
+      mobile_eyebrow: "FALSET ESPAI VI · WEB APP",
+      mobile_title: "Continue your route",
+      mobile_sub: "Scan your QR or enter your code to open your route and continue discovering the territory.",
+      scan_button: "Scan QR",
+      scan_sub: "Open your route instantly",
+      code_label: "ACCESS CODE",
+      code_placeholder: "E.g. FALSET-2384",
+      hint: "Your access is saved with your route code to resume the experience whenever you want.",
+      enter_button: "Enter the route",
+      example_button: "Use example access",
+      overview_title: "Main domain",
+      overview_name: "Falset Espai Vi",
+      overview_story: "When you arrive at each place, its domain will unlock and open as its own screen within the experience.",
+      section_label: "DOMAINS YOU CAN UNLOCK",
+      stop_prefix: "DOMAIN",
+      stop_state_locked: "Locked",
+      stop_state_unlocked: "Visible",
+      button_how: "How to get there",
+      button_open: "Open place",
+      detail_locked_title: "This domain is still locked",
+      detail_locked_desc: "When the user arrives physically, this screen changes and loads the own experience of the unlocked place.",
+      detail_distance: "You are at",
+      detail_how_button: "How to get there",
+      detail_sim_button: "Simulate arrival",
+      detail_sim_small: "(DEMO)",
+      detail_unlocked_cat: "UNLOCKED DOMAIN",
+      detail_what: "What is it?",
+      detail_next: "Next step",
+      detail_next_desc: "From here you can return to the main domain or continue unlocking the rest of the route.",
+      unlocked_badge: "UNLOCKED",
+      place_context_label: "MAIN DOMAIN ALWAYS VISIBLE",
+      place_context_strong: "Falset Espai Vi",
+      place_context_span: "Now the user is already inside the domain of the place and not just in the general view of the route.",
+      stop_count_label: "domains",
+      // Additional translations
+      build_story: {
+        prefix: "From <em>Falset Espai Vi</em> you can open a route of <em>",
+        mid: " domains</em> and unlock ",
+        interests: {
+          gastronomia: 'flavors and experiences',
+          cultura: 'heritage and history',
+          natura: 'landscape and environment',
+          aventura: 'active route'
+        },
+        default_interest: 'connected places',
+        paces: {
+          tranquil: 'with a tranquil pace',
+          actiu: 'with more movement',
+          familiar: 'designed to share'
+        },
+        default_pace: '',
+        suffix: '. Each place activates upon arrival and changes from locked view to own experience.'
+      },
+      route_titles: {
+        default: 'Falset Route',
+        gastronomia: 'Flavors and places',
+        cultura: 'Unlockable heritage',
+        natura: 'Landscape and environment',
+        aventura: 'Route in motion',
+        other: 'Place experience'
+      },
+      curio_label: 'DID YOU KNOW?',
+      directions_alert: 'How to get to {name}\n\nIn the real app here we would open the browser or an external map.',
+      route_prefix: 'ROUTE · '
+    }
+  };
+
   let leafletMap, markerLayer;
 
   function goTo(screenId) {
@@ -1596,6 +2018,13 @@
       state.view = v;
       document.getElementById('totem').classList.toggle('active', v === 'totem');
       document.getElementById('mobile').classList.toggle('active', v === 'mobile');
+    });
+  });
+
+  document.querySelectorAll('.lang-select button').forEach(b => {
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setLanguage(b.dataset.lang);
     });
   });
 
@@ -1654,12 +2083,13 @@
     filteredPois().forEach(p => addMarker(p, false));
     updateCounter();
 
+    const t = translations[currentLang];
     const n = filteredPois().length;
     const interestTxt = state.interest ? `(${state.interest})` : '';
     document.getElementById('map-subhead').textContent =
       state.mode === 'explore'
-        ? `${POIS.length} llocs d'interès. Toca per explorar.`
-        : `${n} llocs seleccionats segons les teves preferències ${interestTxt}`;
+        ? `${POIS.length} ${t.map_sub_all}`
+        : `${n} ${t.map_sub_filtered} ${interestTxt}`;
   }
 
   function addMarker(p, isStart) {
@@ -1678,6 +2108,7 @@
   }
 
   function openPoi(p) {
+    const t = translations[currentLang];
     const card = document.getElementById('poi-card');
     const content = document.getElementById('poi-content');
     const added = state.selected.has(p.id);
@@ -1686,10 +2117,10 @@
       <span class="poi-tag">${catsTxt}</span>
       <h3>${p.icon} ${p.name}</h3>
       <p class="desc">${p.desc}</p>
-      <div class="curio"><strong>SABIES QUÈ?</strong>${p.curio}</div>
+      <div class="curio"><strong>${t.curio_label}</strong>${p.curio}</div>
       <div class="poi-actions">
-        <button class="btn-secondary" onclick="closePoi()">Tornar</button>
-        <button class="btn-add ${added ? 'added' : ''}" onclick="toggleSelect('${p.id}')">${added ? '✓ A la ruta' : '+ Afegir a la ruta'}</button>
+        <button class="btn-secondary" onclick="closePoi()">${t.poi_back}</button>
+        <button class="btn-add ${added ? 'added' : ''}" onclick="toggleSelect('${p.id}')">${added ? t.poi_added : t.poi_add}</button>
       </div>
     `;
     card.classList.add('visible');
@@ -1707,8 +2138,11 @@
   };
 
   function updateCounter() {
+    const t = translations[currentLang];
     const n = state.selected.size;
     document.getElementById('selected-count').textContent = n;
+    document.getElementById('selected-count').nextSibling.textContent = ` ${t.selected_count}`;
+    document.getElementById('btn-finish').textContent = t.finish_button;
     document.getElementById('btn-finish').disabled = n === 0;
   }
 
@@ -1723,18 +2157,10 @@
   }
 
   function buildStory(stops) {
-    const interestTxt = {
-      gastronomia:'sabores y experiencias',
-      cultura:'patrimonio e historia',
-      natura:'paisaje y entorno',
-      aventura:'recorrido activo',
-    }[state.interest] || 'lugares conectados';
-    const paceTxt = {
-      tranquil:'con ritmo tranquilo',
-      actiu:'con más movimiento',
-      familiar:'pensado para compartir',
-    }[state.pace] || '';
-    return `Desde <em>Falset Espai Vi</em> puedes abrir una ruta de <em>${stops.length} dominios</em> y desbloquear ${interestTxt} ${paceTxt}. Cada lugar se activa al llegar y pasa de vista bloqueada a experiencia propia.`;
+    const t = translations[currentLang].build_story;
+    const interestTxt = t.interests[state.interest] || t.default_interest;
+    const paceTxt = t.paces[state.pace] || t.default_pace;
+    return `${t.prefix}${stops.length}${t.mid}${interestTxt} ${paceTxt}${t.suffix}`;
   }
 
   function renderRoute() {
@@ -1766,12 +2192,9 @@
   }
 
   function routeTitle(stops) {
-    if (stops.length === 0) return 'Ruta Falset';
-    if (state.interest === 'gastronomia') return 'Sabores y lugares';
-    if (state.interest === 'cultura') return 'Patrimonio desbloqueable';
-    if (state.interest === 'natura') return 'Paisaje y entorno';
-    if (state.interest === 'aventura') return 'Ruta en movimiento';
-    return 'Experiencia del lugar';
+    const t = translations[currentLang].route_titles;
+    if (stops.length === 0) return t.default;
+    return t[state.interest] || t.other;
   }
 
   function ensureMobileRoute() {
@@ -1784,11 +2207,12 @@
   }
 
   function loadMobileRoute() {
+    const t = translations[currentLang];
     state.mobileReady = true;
     const stops = Array.from(state.selected).map(id => POIS.find(p => p.id === id));
     if (!state.routeId) state.routeId = 'FALSET-DEMO';
 
-    document.getElementById('m-route-code').textContent = 'RUTA · ' + state.routeId;
+    document.getElementById('m-route-code').textContent = t.route_prefix + state.routeId;
     document.getElementById('m-count').textContent = stops.length;
     document.getElementById('m-time').textContent = state.time ? state.time + 'h' : '3-4h';
     document.getElementById('m-route-title').textContent = routeTitle(stops);
@@ -1805,15 +2229,15 @@
         <div class="m-stop-top">
           <div class="ic">${s.icon}</div>
           <div class="info">
-            <div class="n">DOMINIO ${i + 1}</div>
+            <div class="n">${t.stop_prefix} ${i + 1}</div>
             <div class="t">${s.name}</div>
             <div class="s">${s.short}</div>
           </div>
-          <div class="state">${unlocked ? 'Visible' : 'Bloqueado'}</div>
+          <div class="state">${unlocked ? t.stop_state_unlocked : t.stop_state_locked}</div>
         </div>
         <div class="m-stop-foot">
           <div class="distance">📍 ${distance}</div>
-          <button type="button" onclick="event.stopPropagation(); ${unlocked ? `openMobileStop('${s.id}')` : `openDirections('${s.id}')`}">${unlocked ? 'Abrir lugar' : 'Cómo llegar'}</button>
+          <button type="button" onclick="event.stopPropagation(); ${unlocked ? `openMobileStop('${s.id}')` : `openDirections('${s.id}')`}">${unlocked ? t.button_open : t.button_how}</button>
         </div>
       `;
       el.addEventListener('click', () => openMobileStop(s.id));
@@ -1823,6 +2247,7 @@
   }
 
   function openMobileStop(id) {
+    const t = translations[currentLang];
     const p = POIS.find(x => x.id === id);
     const orderedStops = Array.from(state.selected);
     const stopIndex = orderedStops.indexOf(id);
@@ -1841,20 +2266,20 @@
           </div>
           <div class="m-detail-body">
             <div class="m-place-context">
-              <div class="label">DOMINIO PRINCIPAL SIEMPRE VISIBLE</div>
-              <strong>Falset Espai Vi</strong>
-              <span>El lugar base permanece visible y desde aquí se abren los dominios de cada parada.</span>
+              <div class="label">${t.place_context_label}</div>
+              <strong>${t.place_context_strong}</strong>
+              <span>${t.place_context_span}</span>
             </div>
             <div class="m-locked-box">
               <div class="lock-icon">🔒</div>
-              <h3>Este dominio todavía está bloqueado</h3>
-              <p>Cuando el usuario llega físicamente, esta pantalla cambia y carga la experiencia propia del lugar desbloqueado.</p>
-              <div class="distance">📍 Estás a ${distance}</div>
+              <h3>${t.detail_locked_title}</h3>
+              <p>${t.detail_locked_desc}</p>
+              <div class="distance">📍 ${t.detail_distance} ${distance}</div>
               <div class="m-locked-actions">
-                <button class="m-outline-btn" onclick="openDirections('${p.id}')">Cómo llegar</button>
+                <button class="m-outline-btn" onclick="openDirections('${p.id}')">${t.detail_how_button}</button>
                 <button class="m-sim-btn" onclick="simulateArrival()">
-                  Simular llegada
-                  <small>(DEMO)</small>
+                  ${t.detail_sim_button}
+                  <small>${t.detail_sim_small}</small>
                 </button>
               </div>
             </div>
@@ -1866,25 +2291,25 @@
         <div class="m-detail-shell">
           <div class="m-detail-head">
             <button class="m-back" onclick="goMobile('overview')">←</button>
-            <div class="cat">DOMINIO DESBLOQUEADO</div>
+            <div class="cat">${t.detail_unlocked_cat}</div>
             <h2>${p.name}</h2>
           </div>
           <div class="m-detail-body m-content">
             <div class="m-place-context">
-              <div class="label">DOMINIO PRINCIPAL</div>
-              <strong>Falset Espai Vi</strong>
-              <span>Ahora el usuario ya está dentro del dominio del lugar y no solo en la vista general del recorrido.</span>
+              <div class="label">${t.place_context_label}</div>
+              <strong>${t.place_context_strong}</strong>
+              <span>${t.place_context_span}</span>
             </div>
-            <span class="m-unlocked-badge">📍 DESBLOQUEADO</span>
+            <span class="m-unlocked-badge">${t.unlocked_badge}</span>
             <div class="bigimg">${p.icon}</div>
-            <h3>Qué es</h3>
+            <h3>${t.detail_what}</h3>
             <p>${p.desc}</p>
             <div class="curio">
               <strong>SABIES QUÈ?</strong>
               ${p.curio}
             </div>
-            <h3>Siguiente paso</h3>
-            <p>Desde aquí puedes volver al dominio principal o seguir desbloqueando el resto del recorrido.</p>
+            <h3>${t.detail_next}</h3>
+            <p>${t.detail_next_desc}</p>
           </div>
         </div>
       `;
@@ -1900,9 +2325,10 @@
   }
 
   function openDirections(id) {
+    const t = translations[currentLang];
     const p = POIS.find(x => x.id === id);
     if (!p) return;
-    alert(`Como llegar a ${p.name}\n\nEn la app real aquí abriríamos el navegador o un mapa externo.`);
+    alert(t.directions_alert.replace('{name}', p.name));
   }
 
   function simulateScan() {
@@ -1932,10 +2358,109 @@
       currentStop: null,
       mobileReady: false,
     };
+    currentLang = 'ca';
     document.querySelectorAll('.q-opt').forEach(o => o.classList.remove('selected'));
     document.getElementById('m-route-input').value = '';
     goTo('welcome');
     if (state.view === 'mobile') goMobile('entry');
+    setLanguage(currentLang);
+  }
+
+  function setLanguage(lang) {
+    currentLang = lang;
+    const t = translations[lang];
+    // Update switcher labels
+    document.querySelector('.switcher button[data-view="totem"]').innerHTML = t.totem_label;
+    document.querySelector('.switcher button[data-view="mobile"]').innerHTML = t.mobile_label;
+    // Update dev reset
+    document.querySelector('.dev-reset').textContent = t.reset;
+    // Update lang-select active
+    document.querySelectorAll('.lang-select button').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.lang === lang);
+    });
+    // Update welcome
+    document.querySelector('#screen-welcome h1').innerHTML = t.welcome_title;
+    document.querySelector('#screen-welcome .welcome-sub').textContent = t.welcome_sub;
+    document.querySelector('#screen-welcome .welcome-cta').textContent = t.welcome_cta;
+    // Onboarding
+    document.querySelector('#screen-onboarding .onboarding-badge').textContent = t.onboarding_badge;
+    document.querySelector('#screen-onboarding h2').textContent = t.onboarding_title;
+    document.querySelector('#screen-onboarding p').textContent = t.onboarding_desc;
+    const steps = document.querySelectorAll('#screen-onboarding .step-num');
+    t.onboarding_steps.forEach((step, i) => {
+      steps[i].nextSibling.textContent = step;
+    });
+    document.querySelector('#screen-onboarding .btn-primary').textContent = t.onboarding_button;
+    // Menu
+    document.querySelector('#screen-menu .menu-head .eyebrow').textContent = t.menu_eyebrow;
+    document.querySelector('#screen-menu .menu-head h2').textContent = t.menu_title;
+    const options = document.querySelectorAll('#screen-menu .menu-option');
+    options[0].querySelector('.tag').textContent = t.menu_option_a_tag;
+    options[0].querySelector('h3').textContent = t.menu_option_a_title;
+    options[0].querySelector('p').textContent = t.menu_option_a_desc;
+    options[1].querySelector('.tag').textContent = t.menu_option_b_tag;
+    options[1].querySelector('h3').textContent = t.menu_option_b_title;
+    options[1].querySelector('p').textContent = t.menu_option_b_desc;
+    // Questions
+    document.querySelector('#screen-q1 .q-eyebrow').textContent = t.q1_eyebrow;
+    document.querySelector('#screen-q1 .q-title').textContent = t.q1_title;
+    const q1opts = document.querySelectorAll('#screen-q1 .q-opt');
+    t.q1_options.forEach((opt, i) => {
+      q1opts[i].querySelector('.emoji').textContent = opt.emoji;
+      q1opts[i].querySelector('.label').textContent = opt.label;
+      q1opts[i].querySelector('.sub').textContent = opt.sub;
+    });
+    document.getElementById('q2-back').textContent = t.back;
+    document.querySelector('#screen-q2 .q-eyebrow').textContent = t.q2_eyebrow;
+    document.querySelector('#screen-q2 .q-title').textContent = t.q2_title;
+    const q2opts = document.querySelectorAll('#screen-q2 .q-opt');
+    t.q2_options.forEach((opt, i) => {
+      q2opts[i].querySelector('.emoji').textContent = opt.emoji;
+      q2opts[i].querySelector('.label').textContent = opt.label;
+      q2opts[i].querySelector('.sub').textContent = opt.sub;
+    });
+    document.getElementById('q3-back').textContent = t.back;
+    document.querySelector('#screen-q3 .q-eyebrow').textContent = t.q3_eyebrow;
+    document.querySelector('#screen-q3 .q-title').textContent = t.q3_title;
+    const q3opts = document.querySelectorAll('#screen-q3 .q-opt');
+    t.q3_options.forEach((opt, i) => {
+      q3opts[i].querySelector('.emoji').textContent = opt.emoji;
+      q3opts[i].querySelector('.label').textContent = opt.label;
+      q3opts[i].querySelector('.sub').textContent = opt.sub;
+    });
+    // Map
+    document.getElementById('map-title').textContent = t.map_title;
+    document.getElementById('map-subhead').textContent = t.map_sub_all;
+    document.getElementById('map-reset').textContent = t.reset;
+    document.getElementById('map-back').textContent = t.back;
+    document.getElementById('selected-label').textContent = t.selected_count;
+    document.getElementById('btn-finish').textContent = t.finish_button;
+    // Route
+    document.getElementById('route-reset').textContent = t.reset;
+    document.getElementById('route-back-map').textContent = t.route_back;
+    document.getElementById('route-eyebrow').textContent = t.route_eyebrow;
+    document.getElementById('route-title').textContent = t.route_title;
+    document.getElementById('route-generate').textContent = t.qr_button;
+    // QR
+    document.getElementById('qr-eyebrow').textContent = t.qr_eyebrow;
+    document.getElementById('qr-title').textContent = t.qr_title;
+    document.getElementById('qr-hint').textContent = t.qr_hint;
+    document.getElementById('qr-new-route').textContent = t.new_route;
+    document.getElementById('qr-simulate').innerHTML = `📱 ${t.simulate_scan}`;
+    // Mobile entry
+    document.getElementById('m-eyebrow').textContent = t.mobile_eyebrow;
+    document.getElementById('m-title').textContent = t.mobile_title;
+    document.getElementById('m-sub').textContent = t.mobile_sub;
+    document.getElementById('m-scan-text').innerHTML = `${t.scan_button}<small id="m-scan-sub">${t.scan_sub}</small>`;
+    document.querySelector('label[for="m-route-input"]').textContent = t.code_label;
+    document.getElementById('m-route-input').placeholder = t.code_placeholder;
+    document.getElementById('m-entry-hint').textContent = t.hint;
+    document.getElementById('m-enter').textContent = t.enter_button;
+    document.getElementById('m-example').textContent = t.example_button;
+    document.getElementById('m-overview-title').textContent = t.overview_title;
+    document.getElementById('m-overview-name').textContent = t.overview_name;
+    document.getElementById('m-count-label').textContent = t.stop_count_label;
+    document.getElementById('m-section-label').textContent = t.section_label;
   }
 
   window.resetDemo = resetDemo;
@@ -1947,6 +2472,8 @@
   window.closePoi = closePoi;
   window.openMobileEntry = openMobileEntry;
   window.openDirections = openDirections;
+
+  setLanguage(currentLang);
 
   document.querySelector('.switcher button[data-view="mobile"]').addEventListener('click', () => {
     if (state.mobileReady || state.selected.size > 0) loadMobileRoute();
